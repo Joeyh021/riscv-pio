@@ -342,3 +342,6 @@ hs_err_pid*
 #metals
 .metals
 metals.sbt
+
+# verilog output
+/gen
