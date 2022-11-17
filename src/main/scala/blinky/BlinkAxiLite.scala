@@ -1,17 +1,19 @@
-package axi
+package blinky
 
 import chisel3._
 import chisel3.util._
-import chisel3.util.experimental.forceName
 
 //simple peripheral with 4 64-bit registers
 //could be parametrised over n registers
 //axi-lite data width has to be either 32 or 64 bits
 //byte strobing not implemented
-class AXILiteRegisterSlave extends Module {
+class BlinkAxiLite extends Module {
   val addrWidth = 2
   val dataWidth = 32;
-  val io        = IO(new AXILiteSlave(addrWidth, dataWidth))
+  val io = IO(new Bundle {
+    val axi_io = new axi.AXILiteSlave(addrWidth, dataWidth)
+    val leds   = Output(Vec(4, Bool()))
+  })
 
   //register with a vector of 4 64 bit numbers
   val registers = RegInit(VecInit(Seq.fill(4)(0.U(dataWidth.W))))
@@ -26,49 +28,52 @@ class AXILiteRegisterSlave extends Module {
   //--- write signalling ---
 
   //connect awready signal
-  io.writeAddr.ready := writeAddrReadyReg
+  io.axi_io.writeAddr.ready := writeAddrReadyReg
 
   // registers can be written to when both write address and data are valid
   // and whatever the hell this last condition means
-  val canWrite = io.writeAddr.valid && io.writeData.valid && !writeAddrReadyReg
+  val canWrite = io.axi_io.writeAddr.valid && io.axi_io.writeData.valid && !writeAddrReadyReg
   writeAddrReadyReg := canWrite
 
   //when can write, then store the address that was written to us
   val writeAddrReg = RegInit(0.U)
-  when(canWrite) { writeAddrReg := io.writeAddr.bits.addr }
+  when(canWrite) { writeAddrReg := io.axi_io.writeAddr.bits.addr }
 
   //handle wready, use same canWrite wire
   writeDataReadyReg := canWrite
-  io.writeData.ready := writeDataReadyReg
+  io.axi_io.writeData.ready := writeDataReadyReg
 
   //write to registers when both write address and data channels are ready and valid
-  val doWrite = writeDataReadyReg && io.writeData.valid && writeAddrReadyReg && io.writeAddr.valid
-  when(doWrite) { registers(writeAddrReg) := io.writeData.bits.data }
+  val doWrite = writeDataReadyReg && io.axi_io.writeData.valid && writeAddrReadyReg && io.axi_io.writeAddr.valid
+  when(doWrite) { registers(writeAddrReg) := io.axi_io.writeData.bits.data }
 
   //handle write response
-  io.writeResponse.bits := 0.U                       //never error
+  io.axi_io.writeResponse.bits := 0.U                //never error
   writeRespValidReg := doWrite && !writeRespValidReg //same weird pattern -- eduardo plz help
-  io.writeResponse.valid := writeRespValidReg
+  io.axi_io.writeResponse.valid := writeRespValidReg
 
   // --- read signalling ---
 
   //handle rready
-  val canRead = !readAddrReadyReg && io.readAddr.valid
+  val canRead = !readAddrReadyReg && io.axi_io.readAddr.valid
   readAddrReadyReg := canRead
-  io.readAddr.ready := readAddrReadyReg
+  io.axi_io.readAddr.ready := readAddrReadyReg
 
   //latch the read address passed to us
   val readAddrReg = RegInit(0.U)
-  when(canRead) { readAddrReg := io.readAddr.bits.addr }
+  when(canRead) { readAddrReg := io.axi_io.readAddr.bits.addr }
 
   // read data is valid when address is valid and we are ready
-  val doRead = readAddrReadyReg && io.readAddr.valid && !readDataValidReg
+  val doRead = readAddrReadyReg && io.axi_io.readAddr.valid && !readDataValidReg
   readDataValidReg := doRead
-  io.readData.valid := readDataValidReg
+  io.axi_io.readData.valid := readDataValidReg
 
-  io.readData.bits.resp := 0.U //always respond with okay
+  io.axi_io.readData.bits.resp := 0.U //always respond with okay
 
   ///register select
-  val readRegSelect = io.readAddr.bits.addr
-  io.readData.bits.data := RegNext(registers(readRegSelect)) //cannot have combinatorial paths from in->out
+  val readRegSelect = io.axi_io.readAddr.bits.addr
+  io.axi_io.readData.bits.data := RegNext(registers(readRegSelect)) //cannot have combinatorial paths from in->out
+
+  //connect bit 0 of registers to our leds
+  io.leds := registers.map(_.apply(0))
 }

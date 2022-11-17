@@ -47,8 +47,8 @@ class AXILiteSlave(addrWidth: Int, dataWidth: Int) extends Bundle {
 
   forceName(readData.bits.data, "S_AXI_RDATA")
   forceName(readData.bits.resp, "S_AXI_RRESP")
-  forceName(readData.ready, "S_AXI_RVALID")
-  forceName(readData.valid, "S_AXI_RREADY")
+  forceName(readData.ready, "S_AXI_RREADY")
+  forceName(readData.valid, "S_AXI_RVALID")
 
   forceName(writeAddr.bits.addr, "S_AXI_AWADDR")
   forceName(writeAddr.bits.prot, "S_AXI_AWPROT")
