@@ -1,4 +1,4 @@
-package dev.joeyh.pio.fifo
+package dev.joeyh.pio
 
 import chisel3._
 import chisel3.util._
@@ -11,5 +11,6 @@ case object Output extends Direction
 class FIFOIO extends Bundle {}
 
 class FIFO(dir: Direction) extends Module {
+
   val io = IO(new FIFOIO)
 }
