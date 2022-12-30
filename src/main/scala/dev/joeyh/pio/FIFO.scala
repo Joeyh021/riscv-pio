@@ -3,14 +3,20 @@ package dev.joeyh.pio
 import chisel3._
 import chisel3.util._
 
-//Need to specialise behaviour for input and output fifo
-sealed trait Direction
-case object Input  extends Direction
-case object Output extends Direction
+//An asynchronous 4x32bit FIFO
+//allows for read/writing in different clock domains
+//can shift in either direction, parametrised at build time
 
-class FIFOIO extends Bundle {}
+//IDEA: Potentially use chisel.util.Decoupled and util.Queue here
 
-class FIFO(dir: Direction) extends Module {
+class FIFOIO extends Bundle {
+  val read  = Output(UInt(32.W))
+  val write = Input(UInt(32.W))
+  val empty = Output(Bool())
+  val full  = Output(Bool())
+}
+
+class FIFO() extends Module {
 
   val io = IO(new FIFOIO)
 }

@@ -1,5 +1,6 @@
 gen:
-    sbt run
+    sbt "runMain dev.joeyh.Main"    
+    rm gen/*.fir gen/*.anno.json
 
 test:
     sbt test
