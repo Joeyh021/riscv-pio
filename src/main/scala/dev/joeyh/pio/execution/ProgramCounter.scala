@@ -12,7 +12,7 @@ class ProgramCounterIO extends Bundle {
   val wrapTarget = Input(UInt(5.W))
 
   //used for set/jumps
-  val write = Input(UInt(5.W))
+  val write = Input(Valid(UInt(5.W)))
 
   //if high, the counter is incremented for the next cycle
   //used for delays/stalls
@@ -21,5 +21,23 @@ class ProgramCounterIO extends Bundle {
 
 class ProgramCounter extends Module {
   val io = IO(new ProgramCounterIO)
+
+  val reg = RegInit(0.U)
+  io.read := reg
+
+  when(io.write.valid) {
+    //ignore increment if trying to write
+    //ignore wrap when writing directly
+    reg := io.write.bits
+  }.elsewhen(io.increment && !io.write.valid) {
+    //only increment if no writeEn
+    //wrap if we need to
+    when(io.wrapTarget =/= 0.U && reg === io.wrapTarget) {
+      reg := 0.U
+    } otherwise {
+      // will wrap around 5 bits anyways
+      reg := reg + 1.U
+    }
+  }
 
 }
