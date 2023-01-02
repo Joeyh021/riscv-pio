@@ -7,9 +7,8 @@ import chisel3.util._
 //system has two of these, X and Y
 
 class ScratchRegIO extends Bundle {
-  val read        = Output(UInt(32.W))
-  val write       = Input(UInt(32.W))
-  val writeEnable = Input(Bool())
+  val read  = Output(UInt(32.W))
+  val write = Input(Valid(UInt(32.W)))
 }
 
 class ScratchReg extends Module {
@@ -17,7 +16,7 @@ class ScratchReg extends Module {
 
   val reg = RegInit(0.U)
   io.read := reg
-  when(io.writeEnable) {
-    reg := io.write
+  when(io.write.valid) {
+    reg := io.write.bits
   }
 }
