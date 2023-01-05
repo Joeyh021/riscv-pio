@@ -119,6 +119,8 @@ sets pin 0 at the same time the instruction executes
 
 Insert N NOPs after the instruction
 
+Only delay _after_ a stalled instruction executes successfully
+
 ### autopull/push
 
 when the osr is empty and 32 bits have been shifted, can use autopull to auto refill from fifo

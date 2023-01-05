@@ -18,11 +18,9 @@ class DecodeIO extends Bundle {
   val ALUDest = Output(UInt(2.W))
   val ALUOp   = Output(UInt(3.W))
 
-  //ALU computes wait conditions
-  //this is asserted if we need to wait (de-assert increment)
-  val doWait = Input(Bool())
-
-  val sleeping = Output(Bool())
+  //ALU computes wait conditions, so will assert this
+  //may also be asserted by control signal from fifo/shiftreg
+  val stall = Input(Bool())
 
   //the side set output value
   //goes straight to the pin
@@ -40,12 +38,17 @@ class Decode extends Module {
 
   //decrement if sleeping as we do not wish to sleep forever
   //if we are sleeping we don't want to read the delay field of the instruction
-  delayCycles := Mux(sleeping, delayCycles - 1.U, io.instruction(11, 8))
+  //if we stall, then don't delay and immediately re-exec
+  delayCycles := Mux(sleeping, delayCycles - 1.U, Mux(io.stall, 0.U, io.instruction(11, 8)))
 
   //if we're sleeping, override instruction with `mov x,x`
   //hacky? yes. efficient? no. functional? hopefully...
   val nopInstruction = "b101_00000_111_00_111".U
   val instruction    = Mux(sleeping, nopInstruction, io.instruction)
+
+  //increment the program counter if we're not sleeping, and instruction didn't cause a stall
+  //these cannot both be high at the same time
+  io.increment := !sleeping && !io.stall
 
   //opcode is top 3 bits
   val opcode = instruction(15, 13)
@@ -63,7 +66,6 @@ class Decode extends Module {
     //WAIT
     is(1.U) {
       val polarity = instruction(7)
-      val source   = instruction(6, 5)
       val index    = instruction(4, 0)
     }
 
