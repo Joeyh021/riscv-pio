@@ -26,6 +26,22 @@ class DecodeIO extends Bundle {
   //goes straight to the pin
   val sideSet = Output(Bool())
 
+  //control signals for shifts
+  //in/out instructions assert these
+
+  //if 0, do nothing
+  val inCount  = Output(UInt(5.W))
+  val outCount = Output(UInt(5.W))
+
+  val inSrc   = Output(UInt(3.W))
+  val outDest = Output(UInt(3.W))
+
+  //control signals for push/pull
+  val doPush = Output(Bool())
+  val doPull = Output(Bool())
+  //shared by both instructions
+  val iffeFlag = Output(Bool())
+  val blkFlag  = Output(Bool())
 }
 
 class Decode extends Module {
@@ -56,6 +72,42 @@ class Decode extends Module {
   //side set is bit 12
   io.sideSet := instruction(12)
 
+  //implement in/out instructions
+  //assert control signals for registers
+  //IN
+  when(opcode === 2.U) {
+    io.inSrc := instruction(7, 5)
+    io.inCount := instruction(4, 0)
+  }.otherwise {
+    io.inSrc := 0.U
+    io.inCount := 0.U
+  }
+  //OUT
+  when(opcode === 3.U) {
+    io.outDest := instruction(7, 5)
+    io.outCount := instruction(4, 0)
+  }.otherwise {
+    io.outDest := 0.U
+    io.outCount := 0.U
+  }
+
+  //control signals for push/pull
+  when(opcode === 4.U) {
+    io.iffeFlag := instruction(6)
+    io.blkFlag := instruction(5)
+    when(instruction(7)) {
+      io.doPull := true.B
+    }.otherwise {
+      io.doPush := true.B
+    }
+
+  }.otherwise {
+    io.iffeFlag := false.B
+    io.blkFlag := false.B
+    io.doPull := false.B
+    io.doPush := false.B
+  }
+
   switch(opcode) {
     //JUMP
     is(0.U) {
@@ -67,32 +119,6 @@ class Decode extends Module {
     is(1.U) {
       val polarity = instruction(7)
       val index    = instruction(4, 0)
-    }
-
-    //IN
-    is(2.U) {
-      val source   = instruction(7, 5)
-      val bitCount = instruction(4, 0)
-    }
-
-    //OUT
-    is(3.U) {
-      val dest     = instruction(7, 5)
-      val bitCount = instruction(4, 0)
-    }
-
-    //PUSH/PULL
-    is(4.U) {
-      //if full/if empty flag
-      val iffe = instruction(6)
-      //block flag
-      val blk = instruction(5)
-
-      //PULL
-      when(instruction(7)) {}
-      //PUSH
-      .otherwise {}
-
     }
 
     //MOV
