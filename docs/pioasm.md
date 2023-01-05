@@ -31,11 +31,23 @@ set PC to immediate operand if condition is true
 
 stall until condition met. can set polarity
 
-- wait on input pin
+- wait on input pin to meet a condition
+- Bit 7 is polarity
+- bits 6-5 unused
+- Bits 4-0 select pin
 
 ### IN
 
 shift data in (N bits)
+
+- Bits 7-5 is source
+  - 000 - pins
+  - 001 - X
+  - 010 - Y
+  - 011 - Zeros
+  - 110 - ISR
+  - 111 - OSR
+- Bits 4-0 is count
 
 - pins
 - x
