@@ -10,22 +10,22 @@ class ScratchRegTest extends AnyFlatSpec with ChiselScalatestTester {
   it should "read and write" in {
     test(new ScratchReg) { uut =>
       //write 42 to reg
-      uut.io.write.bits.poke(42)
-      uut.io.write.valid.poke(true)
+      uut.io.write.data.poke(42)
+      uut.io.write.enable.poke(true)
 
       uut.io.read.expect(0, "Clock not yet stepped, output should be 0")
 
       uut.clock.step()
       uut.io.read.expect(42, "Clock stepped, value 42 should be written")
 
-      uut.io.write.bits.poke(67)
+      uut.io.write.data.poke(67)
       //write 67
       uut.clock.step()
       uut.io.read.expect(67, "Clock stepped with write enable still high, value 67 should be written")
 
       //78 should not be written
-      uut.io.write.valid.poke(false)
-      uut.io.write.bits.poke(78)
+      uut.io.write.enable.poke(false)
+      uut.io.write.data.poke(78)
 
       uut.clock.step()
 
@@ -40,8 +40,8 @@ class ScratchRegTest extends AnyFlatSpec with ChiselScalatestTester {
   it should "reset to 0" in {
     test(new ScratchReg) { uut =>
       //write 42 to reg
-      uut.io.write.bits.poke(42)
-      uut.io.write.valid.poke(true)
+      uut.io.write.data.poke(42)
+      uut.io.write.enable.poke(true)
 
       uut.io.read.expect(0, "Clock not yet stepped, output should be 0")
 
@@ -54,7 +54,7 @@ class ScratchRegTest extends AnyFlatSpec with ChiselScalatestTester {
 
       uut.clock.step()
       uut.io.read.expect(0, "Device should have reset")
-      uut.io.write.bits.poke(67)
+      uut.io.write.data.poke(67)
       uut.clock.step(10)
       uut.io.read.expect(0, "Device should have reset")
 

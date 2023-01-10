@@ -11,7 +11,7 @@ class ProgramCounterTest extends AnyFlatSpec with ChiselScalatestTester {
     test(new ProgramCounter) { uut =>
       //set wrap target to 0 (disable) and write enable low
       uut.io.wrapTarget.poke(0)
-      uut.io.rw.write.valid.poke(false)
+      uut.io.rw.write.enable.poke(false)
       uut.io.increment.poke(true)
 
       uut.clock.step()
@@ -36,7 +36,7 @@ class ProgramCounterTest extends AnyFlatSpec with ChiselScalatestTester {
     test(new ProgramCounter) { uut =>
       //set wrap target to 10, disable write, allow auto increment
       uut.io.wrapTarget.poke(10)
-      uut.io.rw.write.valid.poke(false)
+      uut.io.rw.write.enable.poke(false)
       uut.io.increment.poke(true)
 
       uut.clock.step()
@@ -53,21 +53,21 @@ class ProgramCounterTest extends AnyFlatSpec with ChiselScalatestTester {
     test(new ProgramCounter) { uut =>
       //disable wrap and write, allow auto increment
       uut.io.wrapTarget.poke(0)
-      uut.io.rw.write.valid.poke(false)
+      uut.io.rw.write.enable.poke(false)
       uut.io.increment.poke(true)
 
       uut.clock.step(10)
       uut.io.rw.read.expect(10, "counter should have incremented")
 
-      uut.io.rw.write.valid.poke(true)
-      uut.io.rw.write.bits.poke(20)
+      uut.io.rw.write.enable.poke(true)
+      uut.io.rw.write.data.poke(20)
       uut.clock.step(1)
       uut.io.rw.read.expect(20, "counter should jump to 20")
 
       uut.clock.step(2)
       uut.io.rw.read.expect(20, "counter still be 20 as we are still writing")
 
-      uut.io.rw.write.valid.poke(false)
+      uut.io.rw.write.enable.poke(false)
       uut.clock.step(2)
       uut.io.rw.read.expect(22, "counter should increment when not writing ")
     }
@@ -77,17 +77,17 @@ class ProgramCounterTest extends AnyFlatSpec with ChiselScalatestTester {
     test(new ProgramCounter) { uut =>
       //enable wrap and increment, disable write
       uut.io.wrapTarget.poke(12)
-      uut.io.rw.write.valid.poke(false)
+      uut.io.rw.write.enable.poke(false)
       uut.io.increment.poke(true)
 
       uut.clock.step(10)
       uut.io.rw.read.expect(10, "counter should have incremented")
 
-      uut.io.rw.write.valid.poke(true)
-      uut.io.rw.write.bits.poke(20)
+      uut.io.rw.write.enable.poke(true)
+      uut.io.rw.write.data.poke(20)
       uut.clock.step(1)
       uut.io.rw.read.expect(20, "counter should jump to 20")
-      uut.io.rw.write.valid.poke(false)
+      uut.io.rw.write.enable.poke(false)
 
       uut.clock.step(2)
       uut.io.rw.read.expect(22, "counter should increment when not writing ")
