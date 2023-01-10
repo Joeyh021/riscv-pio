@@ -7,7 +7,7 @@ import chisel3.util._
 //system has two of these, X and Y
 
 class ScratchReg extends Module {
-  val io = IO(new RWBundle)
+  val io = IO(new RWBundle(UInt(32.W)))
 
   val reg = RegInit(0.U)
   io.read := reg

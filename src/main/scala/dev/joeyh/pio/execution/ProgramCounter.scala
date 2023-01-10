@@ -7,7 +7,7 @@ import dev.joeyh.pio.memory.RWBundle
 //the system program counter
 //5 bits - only 32 instructions max
 class ProgramCounterIO extends Bundle {
-  val rw = new RWBundle()
+  val rw = new RWBundle(UInt(5.W))
 
   // if non-zero, the program counter will wrap early
   val wrapTarget = Input(UInt(5.W))
