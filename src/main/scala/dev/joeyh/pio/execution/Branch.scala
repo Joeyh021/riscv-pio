@@ -2,8 +2,9 @@ package dev.joeyh.pio.execution
 
 import chisel3._
 import chisel3.util._
+import dev.joeyh.pio.util._
 
-class BranchUnitIO extends Bundle {
+class BranchIO extends Bundle {
   //the operation to do
   val op = Input(UInt(3.W))
 
@@ -12,8 +13,9 @@ class BranchUnitIO extends Bundle {
   val enable = Input(Bool())
 
   //condition inputs for jumps
-  val X        = Input(UInt(32.W))
-  val Y        = Input(UInt(32.W))
+  //also the write so we can increment
+  val x        = Flipped(ReadWrite(UInt(32.W)))
+  val y        = Flipped(ReadWrite(UInt(32.W)))
   val osrEmpty = Input(Bool())
 
   val pins         = Input(UInt(12.W)) //entire pin register
@@ -21,28 +23,34 @@ class BranchUnitIO extends Bundle {
 
   //write the new address to the program counter
   val address = Input(UInt(5.W))
-  val PCWrite = Output(Valid(UInt(5.W)))
-
+  val PCWrite = Flipped(Write(UInt(5.W)))
 }
 
-class BranchUnit extends Module {
-  val io = IO(new BranchUnitIO)
+class Branch extends Module {
+  val io = IO(new BranchIO)
 
   val doJump = MuxLookup(
     io.op,  //mux condition
     true.B, //default (should not happen)
     Seq(    //cases
       0.U -> true.B,
-      1.U -> (io.X === 0.U),
-      2.U -> (io.X =/= 0.U),
-      3.U -> (io.Y === 0.U),
-      4.U -> (io.Y =/= 0.U),
-      5.U -> (io.X =/= io.Y),
+      1.U -> (io.x.read === 0.U),
+      2.U -> (io.x.read =/= 0.U), //also increment X
+      3.U -> (io.y.read === 0.U),
+      4.U -> (io.y.read =/= 0.U), //also increment Y
+      5.U -> (io.x.read =/= io.y.read),
       6.U -> (io.pins(io.branchPinCSR) === true.B),
       7.U -> (io.osrEmpty === false.B)
     )
   )
 
-  io.PCWrite.valid := io.enable
-  io.PCWrite.bits := io.address
+  //increment conditions
+  io.x.write.enable := io.op === 2.U && doJump
+  io.x.write.data := io.x.read + 1.U
+
+  io.y.write.enable := io.op === 4.U && doJump
+  io.y.write.data := io.y.read + 1.U
+
+  io.PCWrite.enable := io.enable && doJump
+  io.PCWrite.data := io.address
 }
