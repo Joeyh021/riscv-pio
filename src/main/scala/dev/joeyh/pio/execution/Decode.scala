@@ -15,6 +15,7 @@ class DecodeIO extends Bundle {
 
   //may be asserted by control signal from fifo/shiftreg
   //may also be asserted by wait unit
+  //if high, then pc not incremented and we re-exec
   val stall = Input(Bool())
 
   //the side set output value
@@ -37,6 +38,10 @@ class DecodeIO extends Bundle {
   //shared by both instructions
   val iffeFlag = Output(Bool())
   val blkFlag  = Output(Bool())
+
+  //outputs for wait execution
+  val waitPolarity = Output(Bool())
+  val waitIdx      = Output(UInt(5.W))
 }
 
 class Decode extends Module {
@@ -103,31 +108,19 @@ class Decode extends Module {
     io.doPush := false.B
   }
 
-  switch(opcode) {
-    //JUMP
-    is(0.U) {
-      val condition = instruction(7, 5)
-      val address   = instruction(4, 0)
-    }
+  //jump
+  when(opcode === 0.U) {}
 
-    //WAIT
-    is(1.U) {
-      val polarity = instruction(7)
-      val index    = instruction(4, 0)
-    }
-
-    //MOV
-    is(5.U) {
-      val dest = instruction(7, 5)
-      val op   = instruction(4, 3)
-      val src  = instruction(2, 0)
-    }
-
-    //SET
-    is(7.U) {
-      val dest = instruction(7, 5)
-      val data = instruction(4, 0)
-    }
-
+  //WAIT
+  when(opcode === 1.U) {
+    val polarity = instruction(7)
+    val index    = instruction(4, 0)
   }
+
+  //move
+  when(opcode === 5.U) {}
+
+  //set
+  when(opcode === 7.U) {}
+
 }

@@ -49,9 +49,8 @@ set PC to immediate operand if condition is true
 
 ### WAIT
 
-stall until condition met. can set polarity
+stall until pin meets condition
 
-- wait on input pin to meet a condition
 - Bit 7 is polarity
 - bits 6-5 unused
 - Bits 4-0 select pin

@@ -61,3 +61,9 @@ conditions:
   - if the output shift register is non-empty
 
 For the increment operations
+
+## Wait
+
+inputs are just wait operands and pin register, outputs are if we stall or no
+
+only one wait condition atm so very simple
