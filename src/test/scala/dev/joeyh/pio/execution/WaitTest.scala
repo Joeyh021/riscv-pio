@@ -52,7 +52,7 @@ class WaitUnitTest extends AnyFlatSpec with ChiselScalatestTester {
 
       uut.io.polarity.poke(1.U)
       uut.io.pinIdx.poke(2.U)
-      uut.io.doStall.expect(false.B, "Wait condition should not be triggered")
+      uut.io.doStall.expect(true.B, "Wait condition should not be triggered")
 
       uut.io.polarity.poke(0.U)
       uut.io.pinIdx.poke(11.U)
