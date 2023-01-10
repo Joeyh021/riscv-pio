@@ -2,11 +2,12 @@ package dev.joeyh.pio.execution
 
 import chisel3._
 import chisel3.util._
+import dev.joeyh.pio.memory.RWBundle
 
 //the system program counter
 //5 bits - only 32 instructions max
 class ProgramCounterIO extends Bundle {
-  val read = Output(UInt(5.W))
+  val rw = new RWBundle()
 
   // if non-zero, the program counter will wrap early
   val wrapTarget = Input(UInt(5.W))
@@ -23,7 +24,7 @@ class ProgramCounter extends Module {
   val io = IO(new ProgramCounterIO)
 
   val reg = RegInit(0.U)
-  io.read := reg
+  io.rw.read := reg
 
   when(io.write.valid) {
     //ignore increment if trying to write

@@ -23,9 +23,29 @@ The primary reference is [section 3 of the RP2040 datasheet](https://datasheets.
 
 set PC to immediate operand if condition is true
 
-- always
-- if x/y zero/nonzero/equal
-- on input pin
+- `000`
+  - always
+- `001`
+  - `!X`
+  - If x zero
+- `010`
+  - `X--`
+  - If X non-zero _prior_ to decrement
+  - Decrement operation is not conditional
+- `011`
+  - `!Y`
+  - If y zero
+- `100`
+  - `Y--`
+  - If Y non-zero _prior_ to decrement
+  - Decrement operation is not conditional
+- `101`
+  - `X != Y`
+  - if x not equal to y
+- `110`
+  - If input pin configured by CSR is high
+- `!OSRE`
+  - if the output shift register is non-empty
 
 ### WAIT
 
@@ -92,8 +112,6 @@ load 32-bit word from tx fifo to OSR
 
 Copy data from src to dest
 
-may do an operation (none, flip, reverse)
-
 - pins
 - x
 - y
@@ -105,7 +123,6 @@ may do an operation (none, flip, reverse)
 
 Write an immediate value to a destination
 
-- 000 - pins
 - 001 - X
 - 010 - Y
 

@@ -5,7 +5,7 @@ import chisel3.util._
 import java.io.DataOutput
 
 //instruction decode stage
-//includes asserting control signals for certain instructions, or passing to ALU if needed
+//includes asserting control signals for certain instructions, or passing to other execution units if needed
 class DecodeIO extends Bundle {
   val instruction = Input(UInt(5.W))
 
@@ -13,13 +13,8 @@ class DecodeIO extends Bundle {
   //used to re-execute on a stall
   val increment = Output(Bool())
 
-  //ALU outputs
-  val ALUSrc  = Output(UInt(2.W))
-  val ALUDest = Output(UInt(2.W))
-  val ALUOp   = Output(UInt(3.W))
-
-  //ALU computes wait conditions, so will assert this
-  //may also be asserted by control signal from fifo/shiftreg
+  //may be asserted by control signal from fifo/shiftreg
+  //may also be asserted by wait unit
   val stall = Input(Bool())
 
   //the side set output value
