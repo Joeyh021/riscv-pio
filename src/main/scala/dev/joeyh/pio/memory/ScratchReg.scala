@@ -7,11 +7,11 @@ import chisel3.util._
 //system has two of these, X and Y
 
 class ScratchReg extends Module {
-  val io = IO(new RWBundle(UInt(32.W)))
+  val io = IO(RW(UInt(32.W)))
 
   val reg = RegInit(0.U)
   io.read := reg
-  when(io.write.valid) {
-    reg := io.write.bits
+  when(io.write.enable) {
+    reg := io.write.data
   }
 }
