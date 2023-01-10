@@ -8,6 +8,7 @@ class BranchUnitIO extends Bundle {
   val op = Input(UInt(3.W))
 
   //execute on this unit
+  //just enables the pc write
   val enable = Input(Bool())
 
   //condition inputs for jumps

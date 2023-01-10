@@ -42,6 +42,12 @@ class DecodeIO extends Bundle {
   //outputs for wait execution
   val waitPolarity = Output(Bool())
   val waitIdx      = Output(UInt(5.W))
+  val waitEnable   = Output(Bool())
+
+  //outputs for jump execution
+  val branchOp      = Output(UInt(3.W))
+  val branchAddress = Output(UInt(5.W))
+  val branchEnable  = Output(Bool())
 }
 
 class Decode extends Module {
@@ -109,12 +115,25 @@ class Decode extends Module {
   }
 
   //jump
-  when(opcode === 0.U) {}
+  when(opcode === 0.U) {
+    io.branchOp := instruction(7, 5)
+    io.branchAddress := instruction(4, 0)
+    io.branchEnable := true.B
+  }.otherwise {
+    io.branchOp := 0.U
+    io.branchAddress := 0.U
+    io.branchEnable := false.B
+  }
 
   //WAIT
   when(opcode === 1.U) {
-    val polarity = instruction(7)
-    val index    = instruction(4, 0)
+    io.waitPolarity := instruction(7)
+    io.waitIdx := instruction(4, 0)
+    io.waitEnable := true.B
+  }.otherwise {
+    io.waitPolarity := 0.U
+    io.waitIdx := 0.U
+    io.waitEnable := false.B
   }
 
   //move

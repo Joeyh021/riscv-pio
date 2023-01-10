@@ -11,12 +11,14 @@ class WaitIO extends Bundle {
   val pins   = Input(UInt(12.W))
   val pinIdx = Input(UInt(5.W))
 
+  val enable = Input(Bool())
+
   val doStall = Output(Bool())
 }
 
 class Wait extends Module {
   val io = IO(new WaitIO)
 
-  io.doStall := io.pins(io.pinIdx) === io.polarity
+  io.doStall := io.enable && io.pins(io.pinIdx) === io.polarity
 
 }
