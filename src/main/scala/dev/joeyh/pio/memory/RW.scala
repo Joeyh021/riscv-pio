@@ -10,7 +10,7 @@ class RW[D <: Data](d: D) extends Bundle {
   val read = Output(d)
   val write = new Bundle {
     val enable = Input(Bool())
-    val data   = Input(deprecated)
+    val data   = Input(d)
   }
 
 }
