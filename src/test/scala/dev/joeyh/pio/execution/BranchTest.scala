@@ -71,14 +71,58 @@ class BranchUnitTest extends AnyFlatSpec with ChiselScalatestTester {
       uut.io.enable.poke(true)
       uut.io.address.poke(address)
 
-      //branch 
+      //branch on y != 0
       uut.io.op.poke(4.U)
-      uut.io.y.read.poke(regValue)
-      uut.io.PCWrite.data.expect(address, "Unit should write address as y != 0")
-      uut.io.PCWrite.enable.expect(true.B, "PC write enable should be high")
-      uut.io.y.write.enable.expect(true.B, "y write enable should be high as we are incrementing")
-      uut.io.y.write.data.expect(regValue + 1, "y should be y++")
+      uut.io.y.read.poke(0.U)
 
+      uut.io.PCWrite.enable.expect(false.B, "PC write enable should be low")
+      uut.io.y.write.enable.expect(false.B, "y write enable should be low as we are not incrementing")
+      //write enables are low so actual write data is irrelevant
+
+    }
+  }
+
+  it should "branch when registers are not equal" in {
+    test(new Branch) { uut =>
+      //enable, set branch address
+      uut.io.enable.poke(true)
+      uut.io.address.poke(address)
+
+      //set registers to equal values
+      uut.io.op.poke(5.U)
+      uut.io.x.read.poke(regValue)
+      uut.io.y.read.poke(regValue)
+
+      uut.io.PCWrite.enable.expect(false.B, "PC write enable should be low")
+      uut.io.x.write.enable.expect(false.B, "x write enable should be low as we are not incrementing")
+      uut.io.y.write.enable.expect(false.B, "y write enable should be low as we are not incrementing")
+
+      //set registers to unequal values
+      uut.io.y.read.poke(regValue + 1)
+      uut.io.PCWrite.enable.expect(true.B, "PC write enable should be high")
+      uut.io.PCWrite.data.expect(address, "Unit should write address as x != y")
+
+    }
+  }
+
+  it should "branch when branch pin is high" in {
+    test(new Branch) { uut =>
+      //enable, set branch address
+      uut.io.enable.poke(true)
+      uut.io.address.poke(address)
+
+      uut.io.op.poke(6.U)
+
+      //pins all high
+      uut.io.pins.poke("b10".U)
+
+      //branch on pin 0
+      uut.io.branchPinCSR.poke(0.U)
+      uut.io.PCWrite.enable.expect(false.B, "PC write enable should be low as pin 0 is low")
+
+      //branch on pin 1
+      uut.io.branchPinCSR.poke(1.U)
+      uut.io.PCWrite.enable.expect(true.B, "PC write enable should be high as pin 1 is high")
     }
   }
 
