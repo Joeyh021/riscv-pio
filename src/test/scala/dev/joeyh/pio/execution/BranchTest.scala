@@ -126,4 +126,22 @@ class BranchUnitTest extends AnyFlatSpec with ChiselScalatestTester {
     }
   }
 
+  it should "branch when OSR not empty" in {
+    test(new Branch) { uut =>
+      //enable, set branch address
+      uut.io.enable.poke(true)
+      uut.io.address.poke(address)
+
+      uut.io.op.poke(7.U)
+
+      uut.io.osrEmpty.poke(true.B)
+      uut.io.PCWrite.enable.expect(false.B, "PC write enable should be low as OSR is not empty")
+
+      uut.io.osrEmpty.poke(false.B)
+      uut.io.PCWrite.enable.expect(true.B, "PC write enable should be high as OSR is empty")
+      uut.io.PCWrite.data.expect(address, "Unit should write address as OSR is empty")
+
+    }
+  }
+
 }
