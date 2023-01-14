@@ -6,9 +6,7 @@ import dev.joeyh.pio.util._
 
 //the system program counter
 //5 bits - only 32 instructions max
-class ProgramCounterIO extends Bundle {
-  val rw = ReadWrite(UInt(5.W))
-
+class ProgramCounterIO extends ReadWrite(UInt(5.W)) {
   // if non-zero, the program counter will wrap early
   val wrapTarget = Input(UInt(5.W))
 
@@ -21,13 +19,13 @@ class ProgramCounter extends Module {
   val io = IO(new ProgramCounterIO)
 
   val reg = RegInit(0.U)
-  io.rw.read := reg
+  io.read := reg
 
-  when(io.rw.write.enable) {
+  when(io.write.enable) {
     //ignore increment if trying to write
     //ignore wrap when writing directly
-    reg := io.rw.write.data
-  }.elsewhen(io.increment && !io.rw.write.enable) {
+    reg := io.write.data
+  }.elsewhen(io.increment && !io.write.enable) {
     //only increment if no writeEn
     //wrap if we need to
     when(io.wrapTarget =/= 0.U && reg === io.wrapTarget) {
