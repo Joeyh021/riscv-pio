@@ -2,12 +2,11 @@ package dev.joeyh.pio.execution
 
 import chisel3._
 import chisel3.util._
-import java.io.DataOutput
 
 //instruction decode stage
 //includes asserting control signals for certain instructions, or passing to other execution units if needed
 class DecodeIO extends Bundle {
-  val instruction = Input(UInt(5.W))
+  val instruction = Input(UInt(16.W))
 
   //high if PC is to be incremented
   //used to re-execute on a stall
@@ -48,6 +47,13 @@ class DecodeIO extends Bundle {
   val branchOp      = Output(UInt(3.W))
   val branchAddress = Output(UInt(5.W))
   val branchEnable  = Output(Bool())
+
+  //outputs for mov/set execution
+  val movSrc    = Output(UInt(3.W))
+  val movDest   = Output(UInt(3.W))
+  val setValue  = Output(UInt(5.W))
+  val movEnable = Output(Bool())
+
 }
 
 class Decode extends Module {
@@ -106,7 +112,6 @@ class Decode extends Module {
     }.otherwise {
       io.doPush := true.B
     }
-
   }.otherwise {
     io.iffeFlag := false.B
     io.blkFlag := false.B
@@ -136,10 +141,23 @@ class Decode extends Module {
     io.waitEnable := false.B
   }
 
-  //move
-  when(opcode === 5.U) {}
-
-  //set
-  when(opcode === 7.U) {}
+  //MOV/SET
+  when(opcode === 5.U) {
+    io.movDest := instruction(7, 5)
+    io.movSrc := instruction(2, 0)
+    io.setValue := 0.U
+    io.movEnable := true.B
+  }.elsewhen(opcode === 7.U) {
+      io.movDest := instruction(7, 5)
+      io.movSrc := "b100".U //immediate
+      io.setValue := instruction(4, 0)
+      io.movEnable := true.B
+    }
+    .otherwise {
+      io.movDest := 0.U
+      io.movSrc := 0.U
+      io.setValue := 0.U
+      io.movEnable := false.B
+    }
 
 }
