@@ -62,16 +62,19 @@ class Decode extends Module {
   //if an instruction includes an N cycle delay
   //then we execute NOPs (mov x, x) for the next N cycles
   val delayCycles = RegInit(0.U(4.W))
-  val sleeping    = delayCycles =/= 0.U
+
+  //sleeping if we have a delay did not stall
+  //delays execute after stalls
+  val sleeping = delayCycles =/= 0.U && !io.stall
 
   //decrement if sleeping as we do not wish to sleep forever
   //if we are sleeping we don't want to read the delay field of the instruction
   //if we stall, then don't delay and immediately re-exec
   delayCycles := Mux(sleeping, delayCycles - 1.U, Mux(io.stall, 0.U, io.instruction(11, 8)))
 
-  //if we're sleeping, override instruction with `mov x,x`
+  //if we're sleeping, override instruction with `mov null null`
   //hacky? yes. efficient? no. functional? hopefully...
-  val nopInstruction = "b101_00000_111_00_111".U
+  val nopInstruction = "b101_00000_101_00_101".U
   val instruction    = Mux(sleeping, nopInstruction, io.instruction)
 
   //increment the program counter if we're not sleeping, and instruction didn't cause a stall
@@ -107,11 +110,8 @@ class Decode extends Module {
   when(opcode === 4.U) {
     io.iffeFlag := instruction(6)
     io.blkFlag := instruction(5)
-    when(instruction(7)) {
-      io.doPull := true.B
-    }.otherwise {
-      io.doPush := true.B
-    }
+    io.doPull := instruction(7)
+    io.doPush := !instruction(7)
   }.otherwise {
     io.iffeFlag := false.B
     io.blkFlag := false.B
