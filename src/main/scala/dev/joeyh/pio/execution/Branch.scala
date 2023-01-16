@@ -23,7 +23,7 @@ class BranchIO extends Bundle {
 
   //write the new address to the program counter
   val address = Input(UInt(5.W))
-  val PCWrite = Flipped(Write(UInt(5.W)))
+  val pcWrite = Flipped(Write(UInt(5.W)))
 }
 
 class Branch extends Module {
@@ -51,6 +51,6 @@ class Branch extends Module {
   io.y.write.enable := io.op === 4.U && doJump
   io.y.write.data := io.y.read + 1.U
 
-  io.PCWrite.enable := io.enable && doJump
-  io.PCWrite.data := io.address
+  io.pcWrite.enable := io.enable && doJump
+  io.pcWrite.data := io.address
 }
