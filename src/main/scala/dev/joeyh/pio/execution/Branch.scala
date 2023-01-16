@@ -18,8 +18,8 @@ class BranchIO extends Bundle {
   val y        = Flipped(ReadWrite(UInt(32.W)))
   val osrEmpty = Input(Bool())
 
-  val pins         = Input(UInt(12.W)) //entire pin register
-  val branchPinCSR = Input(UInt(5.W))  //the csr config for jump pin condition
+  val pins      = Input(UInt(12.W)) //entire pin register
+  val branchPin = Input(UInt(5.W))  //the  config for jump pin condition
 
   //write the new address to the program counter
   val address = Input(UInt(5.W))
@@ -39,7 +39,7 @@ class Branch extends Module {
       3.U -> (io.y.read === 0.U),
       4.U -> (io.y.read =/= 0.U), //also increment Y
       5.U -> (io.x.read =/= io.y.read),
-      6.U -> (io.pins(io.branchPinCSR) === true.B),
+      6.U -> (io.pins(io.branchPin) === true.B),
       7.U -> (io.osrEmpty === false.B)
     )
   )

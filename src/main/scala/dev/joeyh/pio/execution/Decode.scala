@@ -65,7 +65,7 @@ class Decode extends Module {
 
   //sleeping if we have a delay did not stall
   //delays execute after stalls
-  val sleeping = delayCycles =/= 0.U && !io.stall
+  val sleeping = delayCycles =/= 0.U
 
   //decrement if sleeping as we do not wish to sleep forever
   //if we are sleeping we don't want to read the delay field of the instruction

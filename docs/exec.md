@@ -11,21 +11,18 @@ branch and wait are another
 
 Inputs:
 
-- src
+- src/dest
   - Scratch X `000`
   - Scratch Y `001`
   - ISR `010`
   - OSR `011`
   - immediate `100` (for set)
+    - invalid for dest
+  - null `101`
+  - pins `110` - move/set use same pin mapping as out
 - data
-- dest
-  - Scratch X `000`
-  - Scratch Y `001`
-  - ISR `010`
-  - OSR `011`
-  - null `100`
-  - pins `101`
 - enable
+- read/write channels for all the above things
 
 ## Branch Unit (Jump)
 

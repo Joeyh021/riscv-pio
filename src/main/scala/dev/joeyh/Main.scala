@@ -5,5 +5,5 @@ object Main extends App {
   val defaultArgs      = Array("--target-dir", "gen/")
   val neaterOutputArgs = Array("--emission-options=disableMemRandomization,disableRegisterRandomization")
 
-  (new ChiselStage).emitVerilog(new pio.memory.ScratchReg, defaultArgs ++ neaterOutputArgs ++ args)
+  (new ChiselStage).emitVerilog(new pio.execution.ExecUnit, defaultArgs ++ neaterOutputArgs ++ args)
 }
