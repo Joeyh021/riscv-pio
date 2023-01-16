@@ -48,7 +48,12 @@ class Move extends Module {
   )
 
   //always write to all the outputs, but only enable the one we want
-  io.dest := srcData
+  io.x.write.data := srcData
+  io.y.write.data := srcData
+  io.isr.write.data := srcData
+  io.osr.write.data := srcData
+  io.pins.write.data := srcData
+
   io.x.write.enable := io.enable && io.dest === 0.U
   io.y.write.enable := io.enable && io.dest === 1.U
   io.isr.write.enable := io.enable && io.dest === 2.U
