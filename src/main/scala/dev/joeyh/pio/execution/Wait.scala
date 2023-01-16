@@ -19,6 +19,7 @@ class WaitIO extends Bundle {
 class Wait extends Module {
   val io = IO(new WaitIO)
 
-  io.doStall := io.enable && io.pins(io.pinIdx) === io.polarity
+  //stall if the pin is not the right polarity
+  io.doStall := io.enable && io.pins(io.pinIdx) =/= io.polarity
 
 }

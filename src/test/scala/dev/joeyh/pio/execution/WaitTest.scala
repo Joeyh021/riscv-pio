@@ -26,37 +26,37 @@ class WaitUnitTest extends AnyFlatSpec with ChiselScalatestTester {
     }
   }
 
-  it should "stall when triggered" in {
+  it should "not stall when condition met" in {
     test(new Wait) { uut =>
       uut.io.enable.poke(true)
       uut.io.pins.poke("b101010".U)
 
       uut.io.polarity.poke(1.U)
       uut.io.pinIdx.poke(3.U)
-      uut.io.doStall.expect(true.B, "Wait condition should be triggered")
+      uut.io.doStall.expect(false, "should not stall as condition met")
 
       uut.io.polarity.poke(1.U)
       uut.io.pinIdx.poke(5.U)
-      uut.io.doStall.expect(true.B, "Wait condition should be triggered")
+      uut.io.doStall.expect(false, "should not stall as condition met")
 
       uut.io.polarity.poke(0.U)
       uut.io.pinIdx.poke(2.U)
-      uut.io.doStall.expect(true.B, "Wait condition should be triggered")
+      uut.io.doStall.expect(false, "should not stall as condition met")
     }
   }
 
-  it should "do nothing when enabled but not triggered" in {
+  it should "stall when enabled but condition not met" in {
     test(new Wait) { uut =>
       uut.io.enable.poke(true)
       uut.io.pins.poke("b101010101010".U)
 
       uut.io.polarity.poke(1.U)
       uut.io.pinIdx.poke(2.U)
-      uut.io.doStall.expect(false.B, "Wait condition should not be triggered")
+      uut.io.doStall.expect(true, "should stall as condition not met")
 
       uut.io.polarity.poke(0.U)
       uut.io.pinIdx.poke(11.U)
-      uut.io.doStall.expect(false.B, "Wait condition should not be triggered")
+      uut.io.doStall.expect(true, "should stall as condition not met")
 
     }
   }
