@@ -101,7 +101,7 @@ class ExecUnit extends Module {
 
   //move unit
   val move = Module(new Move)
-  move.io.enable := decode.io.waitEnable
+  move.io.enable := decode.io.movEnable
   move.io.src := decode.io.movSrc
   move.io.dest := decode.io.movDest
   move.io.immediate := decode.io.setValue
@@ -118,12 +118,25 @@ class ExecUnit extends Module {
   decode.io.stall := io.stall | waitUnit.io.doStall
 
   //scratch register output connections
-  //outputs or'd on the assumption that both units don't try to write at the same time
-  //which they shouldn't.
+  //or the write enables
   io.x.write.enable := move.io.x.write.enable | branch.io.x.write.enable
   io.y.write.enable := move.io.y.write.enable | branch.io.y.write.enable
 
   io.x.write.data := move.io.x.write.data | branch.io.x.write.data
-  io.y.write.data := move.io.y.write.data | branch.io.y.write.data
+  //mux the data write between move/branch, if neither enabled than output 0
+  io.x.write.data := MuxCase(
+    0.U,
+    Seq(
+      move.io.x.write.enable   -> move.io.x.write.data,
+      branch.io.x.write.enable -> branch.io.x.write.data
+    )
+  )
+  io.y.write.data := MuxCase(
+    0.U,
+    Seq(
+      move.io.y.write.enable   -> move.io.y.write.data,
+      branch.io.y.write.enable -> branch.io.y.write.data
+    )
+  )
 
 }
