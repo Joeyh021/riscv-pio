@@ -5,13 +5,13 @@ package dev.joeyh.pio.execution
 import chisel3._
 import chiseltest._
 import org.scalatest.flatspec.AnyFlatSpec
+import _root_.dev.joeyh.pio.util._
 
 class MoveTest extends AnyFlatSpec with ChiselScalatestTester {
   behavior of "move unit"
 
-  val regValue       = scala.util.Random.between(0, Int.MaxValue)
-  val pinsValue      = regValue & (math.pow(2, 32).toInt - 1)
-  val immediateValue = scala.util.Random.between(0, (math.pow(2, 5).toInt - 1))
+  val regValue       = RandomUInt(32)
+  val immediateValue = RandomUInt(5)
 
   it should "move from X to Y" in {
     test(new Move) { uut =>
@@ -46,7 +46,7 @@ class MoveTest extends AnyFlatSpec with ChiselScalatestTester {
 
       uut.io.osr.read.poke(regValue)
       uut.io.pins.write.enable.expect(true, "pins write enable should be high")
-      uut.io.pins.write.data.expect(pinsValue, "pins should be written to")
+      uut.io.pins.write.data.expect(regValue, "pins should be written to")
     }
   }
 
@@ -56,9 +56,9 @@ class MoveTest extends AnyFlatSpec with ChiselScalatestTester {
       uut.io.dest.poke(0) //x
       uut.io.enable.poke(true)
 
-      uut.io.pins.read.poke(pinsValue)
+      uut.io.pins.read.poke(regValue)
       uut.io.x.write.enable.expect(true, "x write enable should be high")
-      uut.io.x.write.data.expect(pinsValue, "x should be written to")
+      uut.io.x.write.data.expect(regValue, "x should be written to")
     }
   }
 
