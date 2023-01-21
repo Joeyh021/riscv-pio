@@ -8,7 +8,7 @@ class WaitIO extends Bundle {
   //wait on a 1 or a 0
   val polarity = Input(Bool())
 
-  val pins   = Input(UInt(12.W))
+  val pins   = Input(UInt(32.W))
   val pinIdx = Input(UInt(5.W))
 
   val enable = Input(Bool())

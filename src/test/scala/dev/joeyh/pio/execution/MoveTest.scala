@@ -10,7 +10,7 @@ class MoveTest extends AnyFlatSpec with ChiselScalatestTester {
   behavior of "move unit"
 
   val regValue       = scala.util.Random.between(0, Int.MaxValue)
-  val pinsValue      = regValue & (math.pow(2, 12).toInt - 1)
+  val pinsValue      = regValue & (math.pow(2, 32).toInt - 1)
   val immediateValue = scala.util.Random.between(0, (math.pow(2, 5).toInt - 1))
 
   it should "move from X to Y" in {

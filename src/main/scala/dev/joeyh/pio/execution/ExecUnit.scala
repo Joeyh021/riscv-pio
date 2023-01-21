@@ -19,7 +19,7 @@ class ExecUnitIO extends Bundle {
   val y    = Flipped(ReadWrite(UInt(32.W)))
   val osr  = Flipped(ReadWrite(UInt(32.W)))
   val isr  = Flipped(ReadWrite(UInt(32.W)))
-  val pins = Flipped(ReadWrite(UInt(12.W)))
+  val pins = Flipped(ReadWrite(UInt(32.W)))
 
   val sideSet = Output(Bool())
 
