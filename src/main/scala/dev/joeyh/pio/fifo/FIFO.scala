@@ -1,11 +1,12 @@
-package dev.joeyh.pio
+package dev.joeyh.pio.fifo
 
 import chisel3._
 import chisel3.util._
 
 //An asynchronous 4x32bit FIFO
 //allows for read/writing in different clock domains
-//can shift in either direction, parametrised at build time
+//implementation based on https://github.com/ucb-bar/asyncqueue, which is from rocketchip
+
 
 //IDEA: Potentially use chisel.util.Decoupled and util.Queue here
 
