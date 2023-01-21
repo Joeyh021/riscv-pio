@@ -3,9 +3,8 @@ package dev.joeyh.pio.memory
 import chisel3._
 import chiseltest._
 import org.scalatest.flatspec.AnyFlatSpec
-import dev.joeyh.pio.util._
+import _root_.dev.joeyh.pio.util._
 
-import dev.joeyh.pio.util.RandomUInt
 class InstructionMemTest extends AnyFlatSpec with ChiselScalatestTester {
   behavior of "instruction memory"
 
