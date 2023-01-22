@@ -16,7 +16,7 @@ object CSRAddresses {
   val clockDividerFractional = 0x02 //8 lower bits is fraction (byte 0x03 unused)
   val autopushPull           = 0x04 //0x04 lower 5 is push, 0x05 lower 5 is pull
   val wrapTarget             = 0x06 //lower 5 bits is wrap target
-  val pinConfigs             = 0xA  //TODO
+  val pinConfigs             = 0xA  //1 byte each: in base, in count, out base, out count
 }
 
 class CSRIO extends ReadWrite(UInt(16.W)) {
