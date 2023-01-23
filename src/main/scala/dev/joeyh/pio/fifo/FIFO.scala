@@ -5,19 +5,18 @@ import chisel3.util._
 
 //An asynchronous 4x32bit FIFO
 //allows for read/writing in different clock domains
-//implementation based on https://github.com/ucb-bar/asyncqueue, which is from rocketchip
+//https://github.com/chipsalliance/rocket-chip/blob/master/src/main/scala/util/AsyncQueue.scala
 
+class AsyncCrossingIO extends Bundle {
+  val producerClock = Input(Clock())
+  val producerReset = Input(Bool())
+  val producer      = new ProducerIO
 
-//IDEA: Potentially use chisel.util.Decoupled and util.Queue here
-
-class FIFOIO extends Bundle {
-  val read  = Output(UInt(32.W))
-  val write = Input(UInt(32.W))
-  val empty = Output(Bool())
-  val full  = Output(Bool())
+  val consumerClock = Input(Clock())
+  val consumerReset = Input(Bool())
+  val consumer      = new ConsumerIO
 }
 
-class FIFO() extends Module {
-
-  val io = IO(new FIFOIO)
+class FIFO extends RawModule {
+  val io = IO(new AsyncCrossingIO)
 }

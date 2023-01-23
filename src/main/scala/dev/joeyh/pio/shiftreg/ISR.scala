@@ -2,13 +2,13 @@ package dev.joeyh.pio.shiftreg
 
 import chisel3._
 import chisel3.util._
-import _root_.dev.joeyh.pio.fifo.FIFOProducerIO
+import _root_.dev.joeyh.pio.fifo.ProducerIO
 import _root_.dev.joeyh.pio.util.ReadWrite
 
 // The 32bit shift register
 class ISRIO extends ReadWrite(UInt(32.W)) {
   val shiftInData = Input(UInt(32.W))
-  val fifo        = Flipped(new FIFOProducerIO)
+  val fifo        = Flipped(new ProducerIO)
   val ctrl        = new ShiftControl
 }
 
