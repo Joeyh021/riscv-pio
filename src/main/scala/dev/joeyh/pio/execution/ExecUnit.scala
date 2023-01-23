@@ -27,8 +27,8 @@ class ExecUnitIO extends Bundle {
   //if 0, do nothing
   val inCount  = Output(UInt(5.W))
   val outCount = Output(UInt(5.W))
-  val inSrc    = Output(UInt(3.W))
-  val outDest  = Output(UInt(3.W))
+  val inSrc    = Output(UInt(2.W))
+  val outDest  = Output(UInt(2.W))
 
   //control signals for push/pull
   val doPush = Output(Bool())
