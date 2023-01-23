@@ -36,7 +36,6 @@ class DecodeIO extends Bundle {
   val doPull = Output(Bool())
   //shared by both instructions
   val iffeFlag = Output(Bool())
-  val blkFlag  = Output(Bool())
 
   //outputs for wait execution
   val waitPolarity = Output(Bool())
@@ -109,12 +108,10 @@ class Decode extends Module {
   //control signals for push/pull
   when(opcode === 4.U) {
     io.iffeFlag := instruction(6)
-    io.blkFlag := instruction(5)
     io.doPull := instruction(7)
     io.doPush := !instruction(7)
   }.otherwise {
     io.iffeFlag := false.B
-    io.blkFlag := false.B
     io.doPull := false.B
     io.doPush := false.B
   }

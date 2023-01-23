@@ -35,7 +35,6 @@ class ExecUnitIO extends Bundle {
   val doPull = Output(Bool())
   //shared by both instructions
   val iffeFlag = Output(Bool())
-  val blkFlag  = Output(Bool())
 
   //fifos or shift registers may cause a stall
   val stall = Input(Bool())
@@ -75,7 +74,6 @@ class ExecUnit extends Module {
   io.doPush := decode.io.doPush
   io.doPull := decode.io.doPull
   io.iffeFlag := decode.io.iffeFlag
-  io.blkFlag := decode.io.blkFlag
 
   //branching unit
   val branch = Module(new Branch)

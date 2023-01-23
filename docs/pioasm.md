@@ -64,8 +64,6 @@ shift data in (N bits)
   - 001 - X
   - 010 - Y
   - 011 - Zeros
-  - 110 - ISR
-  - 111 - OSR
 - Bits 4-0 is count
 
 - pins
@@ -97,15 +95,14 @@ if autopull enabled, then when shift count == thresh, reset and pull
 store contents of isr to rx fifo. clear isr to all zeros.
 
 - if iff flag set, then only do if isr full
-- if blk flag set, stall if fifo full
+- always stall if fifo full
 
 ### PULL
 
 load 32-bit word from tx fifo to OSR
 
 - if ife flag set, do nothing unless osr empty
-- if blk flag set, stall if fifo empty
-  - if not set, pulling from empty pulls from scratch X
+- always stall if fifo empty
 
 ### MOV
 
