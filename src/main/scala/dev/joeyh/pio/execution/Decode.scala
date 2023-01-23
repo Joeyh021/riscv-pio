@@ -27,8 +27,6 @@ class DecodeIO extends Bundle {
   val isrSrc  = Output(UInt(2.W))
   val osrCtl  = Output(new ShiftControl)
   val osrDest = Output(UInt(2.W))
-  val push    = Output(new PushPullControl)
-  val pull    = Output(new PushPullControl)
 
   //outputs for wait execution
   val waitPolarity = Output(Bool())
@@ -105,21 +103,21 @@ class Decode extends Module {
   //control signals for push/pull
   //lots of seemingly redundant signalling but we need to keep firrtl happy
   when(opcode === 4.U && instruction(7)) {
-    io.pull.iffeFlag := instruction(6)
-    io.pull.doPushPull := true.B
-    io.push.iffeFlag := false.B
-    io.push.doPushPull := false.B
+    io.osrCtl.iffeFlag := instruction(6)
+    io.osrCtl.doPushPull := true.B
+    io.isrCtl.iffeFlag := false.B
+    io.isrCtl.doPushPull := false.B
   }.elsewhen(opcode === 4.U && !instruction(7)) {
-      io.push.iffeFlag := instruction(6)
-      io.push.doPushPull := true.B
-      io.pull.iffeFlag := false.B
-      io.pull.doPushPull := false.B
+      io.isrCtl.iffeFlag := instruction(6)
+      io.isrCtl.doPushPull := true.B
+      io.osrCtl.iffeFlag := false.B
+      io.osrCtl.doPushPull := false.B
     }
     .otherwise {
-      io.pull.iffeFlag := false.B
-      io.pull.doPushPull := false.B
-      io.push.iffeFlag := false.B
-      io.push.doPushPull := false.B
+      io.osrCtl.iffeFlag := false.B
+      io.osrCtl.doPushPull := false.B
+      io.isrCtl.iffeFlag := false.B
+      io.isrCtl.doPushPull := false.B
     }
 
   //jump

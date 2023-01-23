@@ -28,8 +28,8 @@ class DecodeTest extends AnyFlatSpec with ChiselScalatestTester {
       uut.io.movEnable.expect(false, "mov unit should be disabled")
       uut.io.isrCtl.count.expect(0, "shift in count should be 0")
       uut.io.osrCtl.count.expect(0, "shift out count should be 0")
-      uut.io.pull.doPushPull.expect(false, "pull should be disabled")
-      uut.io.push.doPushPull.expect(false, "push should be disabled")
+      uut.io.osrCtl.doPushPull.expect(false, "pull should be disabled")
+      uut.io.isrCtl.doPushPull.expect(false, "push should be disabled")
     }
   }
 
@@ -55,8 +55,8 @@ class DecodeTest extends AnyFlatSpec with ChiselScalatestTester {
       uut.io.movEnable.expect(false, "mov unit should be disabled")
       uut.io.isrCtl.count.expect(0, "shift in count should be 0")
       uut.io.osrCtl.count.expect(0, "shift out count should be 0")
-      uut.io.pull.doPushPull.expect(false, "pull should be disabled")
-      uut.io.push.doPushPull.expect(false, "push should be disabled")
+      uut.io.osrCtl.doPushPull.expect(false, "pull should be disabled")
+      uut.io.isrCtl.doPushPull.expect(false, "push should be disabled")
     }
   }
 
@@ -79,8 +79,8 @@ class DecodeTest extends AnyFlatSpec with ChiselScalatestTester {
       uut.io.movEnable.expect(false, "mov unit should be disabled")
       uut.io.isrCtl.count.expect(0, "shift in count should be 0")
       uut.io.osrCtl.count.expect(0, "shift out count should be 0")
-      uut.io.pull.doPushPull.expect(false, "pull should be disabled")
-      uut.io.push.doPushPull.expect(false, "push should be disabled")
+      uut.io.osrCtl.doPushPull.expect(false, "pull should be disabled")
+      uut.io.isrCtl.doPushPull.expect(false, "push should be disabled")
     }
   }
 
@@ -183,8 +183,8 @@ class DecodeTest extends AnyFlatSpec with ChiselScalatestTester {
       uut.io.waitEnable.expect(false, "branch unit should be disabled")
       uut.io.movEnable.expect(false, "mov unit should be disabled")
       uut.io.osrCtl.count.expect(0, "shift out count should be 0")
-      uut.io.pull.doPushPull.expect(false, "pull should be disabled")
-      uut.io.push.doPushPull.expect(false, "push should be disabled")
+      uut.io.osrCtl.doPushPull.expect(false, "pull should be disabled")
+      uut.io.isrCtl.doPushPull.expect(false, "push should be disabled")
     }
 
   }

@@ -25,8 +25,8 @@ class ExecTest extends AnyFlatSpec with ChiselScalatestTester {
       //all the signals that should be dead
       uut.io.isrCtl.count.expect(0, "shift in count should be 0")
       uut.io.osrCtl.count.expect(0, "shift out count should be 0")
-      uut.io.pull.doPushPull.expect(false, "pull should be disabled")
-      uut.io.push.doPushPull.expect(false, "push should be disabled")
+      uut.io.osrCtl.doPushPull.expect(false, "pull should be disabled")
+      uut.io.isrCtl.doPushPull.expect(false, "push should be disabled")
       uut.io.x.write.enable.expect(false, "x should not be written")
       uut.io.y.write.enable.expect(false, "y should not be written")
       uut.io.osr.write.enable.expect(false, "osr should not be written")
@@ -56,8 +56,8 @@ class ExecTest extends AnyFlatSpec with ChiselScalatestTester {
       //all the signals that should be dead
       uut.io.isrCtl.count.expect(0, "shift in count should be 0")
       uut.io.osrCtl.count.expect(0, "shift out count should be 0")
-      uut.io.pull.doPushPull.expect(false, "pull should be disabled")
-      uut.io.push.doPushPull.expect(false, "push should be disabled")
+      uut.io.osrCtl.doPushPull.expect(false, "pull should be disabled")
+      uut.io.isrCtl.doPushPull.expect(false, "push should be disabled")
       uut.io.x.write.enable.expect(false, "x should not be written")
       uut.io.y.write.enable.expect(false, "y should not be written")
       uut.io.osr.write.enable.expect(false, "osr should not be written")
@@ -86,8 +86,8 @@ class ExecTest extends AnyFlatSpec with ChiselScalatestTester {
       //all the signals that should be dead
       uut.io.isrCtl.count.expect(0, "shift in count should be 0")
       uut.io.osrCtl.count.expect(0, "shift out count should be 0")
-      uut.io.pull.doPushPull.expect(false, "pull should be disabled")
-      uut.io.push.doPushPull.expect(false, "push should be disabled")
+      uut.io.osrCtl.doPushPull.expect(false, "pull should be disabled")
+      uut.io.isrCtl.doPushPull.expect(false, "push should be disabled")
       uut.io.x.write.enable.expect(false, "x should not be written")
       uut.io.osr.write.enable.expect(false, "osr should not be written")
       uut.io.isr.write.enable.expect(false, "isr should not be written")
@@ -102,8 +102,8 @@ class ExecTest extends AnyFlatSpec with ChiselScalatestTester {
       //should be executing a NOP here
       uut.io.isrCtl.count.expect(0, "shift in count should be 0")
       uut.io.osrCtl.count.expect(0, "shift out count should be 0")
-      uut.io.pull.doPushPull.expect(false, "pull should be disabled")
-      uut.io.push.doPushPull.expect(false, "push should be disabled")
+      uut.io.osrCtl.doPushPull.expect(false, "pull should be disabled")
+      uut.io.isrCtl.doPushPull.expect(false, "push should be disabled")
       uut.io.x.write.enable.expect(false, "x should not be written")
       uut.io.osr.write.enable.expect(false, "osr should not be written")
       uut.io.isr.write.enable.expect(false, "isr should not be written")

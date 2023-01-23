@@ -29,8 +29,6 @@ class ExecUnitIO extends Bundle {
   val isrDest = Output(UInt(2.W))
   val osrCtl  = Output(new ShiftControl)
   val osrDest = Output(UInt(2.W))
-  val push    = Output(new PushPullControl)
-  val pull    = Output(new PushPullControl)
 
   //fifos or shift registers may cause a stall
   val stall = Input(Bool())
@@ -67,8 +65,6 @@ class ExecUnit extends Module {
   io.isrDest := decode.io.isrSrc
   io.osrCtl := decode.io.osrCtl
   io.osrDest := decode.io.osrDest
-  io.push := decode.io.push
-  io.pull := decode.io.pull
 
   //branching unit
   val branch = Module(new Branch)

@@ -17,21 +17,21 @@ class ISR extends Module {
     shiftCountReg := 0.U
   }
 
-  val saturatingShiftCountSum = 32.U.min(io.sCtl.count + shiftCountReg)
+  val saturatingShiftCountSum = 32.U.min(io.ctrl.count + shiftCountReg)
 
   //wrap that threshold
   //when shift, shift the register
-  when(io.sCtl.doShift) {
+  when(io.ctrl.doShift) {
     //mask off N LSBs of input to shift in
-    val inData = (io.shiftInData & ((1.U << io.sCtl.count) - 1.U))
+    val inData = (io.shiftInData & ((1.U << io.ctrl.count) - 1.U))
     //when true, shift right
     //when false, shift left
-    val shiftedReg = Mux(io.cfg.dir, reg >> io.sCtl.count, reg << io.sCtl.count)
+    val shiftedReg = Mux(io.cfg.dir, reg >> io.ctrl.count, reg << io.ctrl.count)
 
     //update registers
     shiftCountReg := saturatingShiftCountSum
     //need to move up to put in MSBs if from the right, else can leave in LSBs
-    reg := shiftedReg | inData << (32.U - Mux(io.cfg.dir, io.sCtl.count, 32.U))
+    reg := shiftedReg | inData << (32.U - Mux(io.cfg.dir, io.ctrl.count, 32.U))
   }
 
   //if the thresh input is 0, then it's *actually 32*
@@ -44,7 +44,7 @@ class ISR extends Module {
   //push if either:
   //we were told to push directly, checking the ifFull condition if flag is set
   //or, autopush is enabled and we have reached the threshold
-  val doPush = (io.pCtl.doPushPull && (Mux(io.pCtl.iffeFlag, thresholdReached, true.B))) || (io.cfg.autoEnabled && thresholdReached)
+  val doPush = (io.ctrl.doPushPull && (Mux(io.ctrl.iffeFlag, thresholdReached, true.B))) || (io.cfg.autoEnabled && thresholdReached)
 
   when(doPush) {
     //stall if full

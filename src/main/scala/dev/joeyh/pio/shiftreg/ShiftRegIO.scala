@@ -18,16 +18,13 @@ class ShiftControl extends Bundle {
   //when this is asserted, a shift of shiftCount bits takes place
   val doShift = Input(Bool())
   val count   = Input(UInt(5.W))
-}
-
-class PushPullControl extends Bundle {
   //PUSH/PULL control signals
   val doPushPull = Input(Bool())
   val iffeFlag   = Input(Bool())
 }
+
 class ShiftRegIO extends Bundle {
-  val sCtl = new ShiftControl
-  val pCtl = new PushPullControl
+  val ctrl = new ShiftControl
   val cfg  = new ShiftRegConfig
   val rw   = new ReadWrite(UInt(32.W))
 
