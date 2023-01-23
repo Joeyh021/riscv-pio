@@ -7,26 +7,26 @@ import dev.joeyh.pio.util.ReadWrite
 
 class ShiftRegConfig extends Bundle {
   //the threshold before new data is read/written to/from FIFO
-  val thresh      = Input(UInt(5.W)) //1-32, 0=32
-  val autoEnabled = Input(Bool())
+  val thresh      = UInt(5.W) //1-32, 0=32
+  val autoEnabled = Bool()
 
   //TRUE (1) for shift to the right, FALSE (0) for shift to the left
-  val dir = Input(Bool())
+  val dir = Bool()
 }
 
 class ShiftControl extends Bundle {
   //when this is asserted, a shift of shiftCount bits takes place
-  val doShift = Input(Bool())
-  val count   = Input(UInt(5.W))
+  val doShift = Bool()
+  val count   = UInt(5.W)
   //PUSH/PULL control signals
-  val doPushPull = Input(Bool())
-  val iffeFlag   = Input(Bool())
+  val doPushPull = Bool()
+  val iffeFlag   = Bool()
 }
 
 class ShiftRegIO extends Bundle {
-  val ctrl = new ShiftControl
-  val cfg  = new ShiftRegConfig
-  val rw   = new ReadWrite(UInt(32.W))
+  val ctrl = Input(new ShiftControl)
+  val cfg  = Input(new ShiftRegConfig)
+  val rw   = ReadWrite(UInt(32.W))
 
   val shiftCountReg = Output(UInt(6.W))
 

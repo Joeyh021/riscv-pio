@@ -3,6 +3,8 @@ package dev.joeyh.pio.memory
 import chisel3._
 import chisel3.util._
 import dev.joeyh.pio.util._
+import dev.joeyh.pio.shiftreg.ShiftRegConfig
+import dev.joeyh.pio.memory.PinRegConfig
 
 //the bank of control and status registers for the PIO block
 //Uses a chisel Mem for combinational read, synchronous write
@@ -21,6 +23,14 @@ object CSRAddresses {
 
 class CSRIO extends ReadWrite(UInt(16.W)) {
   val address = Input(UInt(5.W))
+
+  val wrapTarget = Output(UInt(5.W))
+  val osrCfg     = Output(new ShiftRegConfig)
+  val isrCfg     = Output(new ShiftRegConfig)
+  val pinCfg     = Output(new PinRegConfig)
+
+  //other config signals
+  val branchPin = Output(UInt(5.W))
 }
 
 class CSR(registers: Int) extends Module {
@@ -33,4 +43,6 @@ class CSR(registers: Int) extends Module {
   when(io.write.enable) {
     mem(io.address) := io.write.data
   }
+
+  io.wrapTarget := mem(CSRAddresses.wrapTarget)(4, 0)
 }
