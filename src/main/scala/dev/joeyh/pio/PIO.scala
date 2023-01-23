@@ -10,4 +10,15 @@ class PIOIO extends Bundle {}
 //most of the subcomponents are connected in here
 class PIO extends Module {
   val io = IO(new PIOIO)
+
+  val clockDiv = Module(new ClockDivider(100_000_000))
+
+  withClock(clockDiv.io.outputClock) {
+
+    val execUnit = Module(new execution.ExecUnit)
+
+    val isr = Module(new shiftreg.ISR)
+    val osr = Module(new shiftreg.OSR)
+  }
+
 }

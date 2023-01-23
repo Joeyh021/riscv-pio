@@ -11,7 +11,7 @@ class ClockDividerIO extends Bundle {
   val integer    = Input(UInt(16.W))
   val fractional = Input(UInt(8.W))
   //input clock is implicit
-  val outputClock = Output(Bool())
+  val outputClock = Output(Clock())
 }
 
 class ClockDivider(val inputClockSpeed: Int) extends Module {
