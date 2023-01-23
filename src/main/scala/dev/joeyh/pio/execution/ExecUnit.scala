@@ -3,6 +3,7 @@ package dev.joeyh.pio.execution
 import chisel3._
 import chisel3.util._
 import dev.joeyh.pio.util._
+import dev.joeyh.pio.shiftreg._
 
 //top level execution unit
 //connects to instruction memory, has data ins/outs for system registers
@@ -23,18 +24,13 @@ class ExecUnitIO extends Bundle {
 
   val sideSet = Output(Bool())
 
-  //control signals for fifos
-  //if 0, do nothing
-  val inCount  = Output(UInt(5.W))
-  val outCount = Output(UInt(5.W))
-  val inSrc    = Output(UInt(2.W))
-  val outDest  = Output(UInt(2.W))
-
-  //control signals for push/pull
-  val doPush = Output(Bool())
-  val doPull = Output(Bool())
-  //shared by both instructions
-  val iffeFlag = Output(Bool())
+  //control signals for shift registers
+  val isrCtl  = Output(new ShiftControl)
+  val isrDest = Output(UInt(2.W))
+  val osrCtl  = Output(new ShiftControl)
+  val osrDest = Output(UInt(2.W))
+  val push    = Output(new PushPullControl)
+  val pull    = Output(new PushPullControl)
 
   //fifos or shift registers may cause a stall
   val stall = Input(Bool())
@@ -66,14 +62,13 @@ class ExecUnit extends Module {
   pc.io.increment := decode.io.increment
   io.sideSet := decode.io.sideSet
 
-  //connect control for in/out/push/pull
-  io.inCount := decode.io.inCount
-  io.outCount := decode.io.outCount
-  io.inSrc := decode.io.inSrc
-  io.outDest := decode.io.outDest
-  io.doPush := decode.io.doPush
-  io.doPull := decode.io.doPull
-  io.iffeFlag := decode.io.iffeFlag
+  //connect control for shiftreg
+  io.isrCtl := decode.io.isrCtl
+  io.isrDest := decode.io.isrSrc
+  io.osrCtl := decode.io.osrCtl
+  io.osrDest := decode.io.osrDest
+  io.push := decode.io.push
+  io.pull := decode.io.pull
 
   //branching unit
   val branch = Module(new Branch)

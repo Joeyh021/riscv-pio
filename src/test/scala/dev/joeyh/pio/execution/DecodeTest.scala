@@ -26,10 +26,10 @@ class DecodeTest extends AnyFlatSpec with ChiselScalatestTester {
       //all other signals should be low
       uut.io.waitEnable.expect(false, "wait unit should be disabled")
       uut.io.movEnable.expect(false, "mov unit should be disabled")
-      uut.io.inCount.expect(0, "shift in count should be 0")
-      uut.io.outCount.expect(0, "shift out count should be 0")
-      uut.io.doPull.expect(false, "pull should be disabled")
-      uut.io.doPush.expect(false, "push should be disabled")
+      uut.io.isrCtl.count.expect(0, "shift in count should be 0")
+      uut.io.osrCtl.count.expect(0, "shift out count should be 0")
+      uut.io.pull.doPushPull.expect(false, "pull should be disabled")
+      uut.io.push.doPushPull.expect(false, "push should be disabled")
     }
   }
 
@@ -53,10 +53,10 @@ class DecodeTest extends AnyFlatSpec with ChiselScalatestTester {
       //all other signals should be low
       uut.io.waitEnable.expect(false, "wait unit should be disabled")
       uut.io.movEnable.expect(false, "mov unit should be disabled")
-      uut.io.inCount.expect(0, "shift in count should be 0")
-      uut.io.outCount.expect(0, "shift out count should be 0")
-      uut.io.doPull.expect(false, "pull should be disabled")
-      uut.io.doPush.expect(false, "push should be disabled")
+      uut.io.isrCtl.count.expect(0, "shift in count should be 0")
+      uut.io.osrCtl.count.expect(0, "shift out count should be 0")
+      uut.io.pull.doPushPull.expect(false, "pull should be disabled")
+      uut.io.push.doPushPull.expect(false, "push should be disabled")
     }
   }
 
@@ -77,10 +77,10 @@ class DecodeTest extends AnyFlatSpec with ChiselScalatestTester {
       //all other signals should be low
       uut.io.branchEnable.expect(false, "branch unit should be disabled")
       uut.io.movEnable.expect(false, "mov unit should be disabled")
-      uut.io.inCount.expect(0, "shift in count should be 0")
-      uut.io.outCount.expect(0, "shift out count should be 0")
-      uut.io.doPull.expect(false, "pull should be disabled")
-      uut.io.doPush.expect(false, "push should be disabled")
+      uut.io.isrCtl.count.expect(0, "shift in count should be 0")
+      uut.io.osrCtl.count.expect(0, "shift out count should be 0")
+      uut.io.pull.doPushPull.expect(false, "pull should be disabled")
+      uut.io.push.doPushPull.expect(false, "push should be disabled")
     }
   }
 
@@ -175,16 +175,16 @@ class DecodeTest extends AnyFlatSpec with ChiselScalatestTester {
 
       //pc should increment
       uut.io.increment.expect(true, "PC should be incremented")
-      uut.io.inCount.expect(31, "shift in count should be 31")
-      uut.io.inSrc.expect(1, "shift in src should be 1")
+      uut.io.isrCtl.count.expect(31, "shift in count should be 31")
+      uut.io.isrSrc.expect(1, "shift in src should be 1")
 
       //all other signals should be low
       uut.io.branchEnable.expect(false, "branch unit should be disabled")
       uut.io.waitEnable.expect(false, "branch unit should be disabled")
       uut.io.movEnable.expect(false, "mov unit should be disabled")
-      uut.io.outCount.expect(0, "shift out count should be 0")
-      uut.io.doPull.expect(false, "pull should be disabled")
-      uut.io.doPush.expect(false, "push should be disabled")
+      uut.io.osrCtl.count.expect(0, "shift out count should be 0")
+      uut.io.pull.doPushPull.expect(false, "pull should be disabled")
+      uut.io.push.doPushPull.expect(false, "push should be disabled")
     }
 
   }

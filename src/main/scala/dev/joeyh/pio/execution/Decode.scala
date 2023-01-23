@@ -2,6 +2,7 @@ package dev.joeyh.pio.execution
 
 import chisel3._
 import chisel3.util._
+import dev.joeyh.pio.shiftreg._
 
 //instruction decode stage
 //includes asserting control signals for certain instructions, or passing to other execution units if needed
@@ -21,21 +22,13 @@ class DecodeIO extends Bundle {
   //goes straight to the pin
   val sideSet = Output(Bool())
 
-  //control signals for shifts
-  //in/out instructions assert these
-
-  //if 0, do nothing
-  val inCount  = Output(UInt(5.W))
-  val outCount = Output(UInt(5.W))
-
-  val inSrc   = Output(UInt(3.W))
-  val outDest = Output(UInt(3.W))
-
-  //control signals for push/pull
-  val doPush = Output(Bool())
-  val doPull = Output(Bool())
-  //shared by both instructions
-  val iffeFlag = Output(Bool())
+  //control signals for shift registers
+  val isrCtl  = Output(new ShiftControl)
+  val isrSrc  = Output(UInt(2.W))
+  val osrCtl  = Output(new ShiftControl)
+  val osrDest = Output(UInt(2.W))
+  val push    = Output(new PushPullControl)
+  val pull    = Output(new PushPullControl)
 
   //outputs for wait execution
   val waitPolarity = Output(Bool())
@@ -90,31 +83,44 @@ class Decode extends Module {
   //assert control signals for registers
   //IN
   when(opcode === 2.U) {
-    io.inSrc := instruction(7, 5)
-    io.inCount := instruction(4, 0)
+    io.isrSrc := instruction(7, 5)
+    io.isrCtl.count := instruction(4, 0)
+    io.isrCtl.doShift := true.B
   }.otherwise {
-    io.inSrc := 0.U
-    io.inCount := 0.U
+    io.isrSrc := 0.U
+    io.isrCtl.count := 0.U
+    io.isrCtl.doShift := false.B
   }
   //OUT
   when(opcode === 3.U) {
-    io.outDest := instruction(7, 5)
-    io.outCount := instruction(4, 0)
+    io.osrDest := instruction(7, 5)
+    io.osrCtl.count := instruction(4, 0)
+    io.osrCtl.doShift := true.B
   }.otherwise {
-    io.outDest := 0.U
-    io.outCount := 0.U
+    io.osrDest := 0.U
+    io.osrCtl.count := 0.U
+    io.osrCtl.doShift := false.B
   }
 
   //control signals for push/pull
-  when(opcode === 4.U) {
-    io.iffeFlag := instruction(6)
-    io.doPull := instruction(7)
-    io.doPush := !instruction(7)
-  }.otherwise {
-    io.iffeFlag := false.B
-    io.doPull := false.B
-    io.doPush := false.B
-  }
+  //lots of seemingly redundant signalling but we need to keep firrtl happy
+  when(opcode === 4.U && instruction(7)) {
+    io.pull.iffeFlag := instruction(6)
+    io.pull.doPushPull := true.B
+    io.push.iffeFlag := false.B
+    io.push.doPushPull := false.B
+  }.elsewhen(opcode === 4.U && !instruction(7)) {
+      io.push.iffeFlag := instruction(6)
+      io.push.doPushPull := true.B
+      io.pull.iffeFlag := false.B
+      io.pull.doPushPull := false.B
+    }
+    .otherwise {
+      io.pull.iffeFlag := false.B
+      io.pull.doPushPull := false.B
+      io.push.iffeFlag := false.B
+      io.push.doPushPull := false.B
+    }
 
   //jump
   when(opcode === 0.U) {

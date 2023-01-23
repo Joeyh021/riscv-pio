@@ -82,7 +82,7 @@ class ISRTest extends AnyFlatSpec with ChiselScalatestTester {
     test(new ISR) { uut =>
       uut.io.cfg.dir.poke(false.B)
       uut.io.sCtl.count.poke(2.U)
-      uut.io.sCtl.shift.poke(true.B)
+      uut.io.sCtl.doShift.poke(true.B)
       uut.io.shiftInData.poke("b110110".U)
 
       uut.clock.step()
@@ -119,7 +119,7 @@ class ISRTest extends AnyFlatSpec with ChiselScalatestTester {
       uut.io.shiftInData.poke("b111111111111111111111".U)
       uut.io.sCtl.count.poke(12.U)
       uut.io.cfg.dir.poke(false.B)
-      uut.io.sCtl.shift.poke(true.B)
+      uut.io.sCtl.doShift.poke(true.B)
 
       uut.clock.step()
       uut.io.rw.read.expect("b111111111111".U, "should have shifted in 12 bits")
@@ -132,7 +132,7 @@ class ISRTest extends AnyFlatSpec with ChiselScalatestTester {
       uut.io.fifo.write.expect("b0000111111111111".U, "should be writing pushed in data to fifo")
 
       uut.clock.step()
-      uut.io.sCtl.shift.poke(false.B)
+      uut.io.sCtl.doShift.poke(false.B)
       uut.io.rw.read.expect(0.U, "should have cleared ISR")
     }
   }

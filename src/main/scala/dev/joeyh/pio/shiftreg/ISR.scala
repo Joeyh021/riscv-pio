@@ -21,7 +21,7 @@ class ISR extends Module {
 
   //wrap that threshold
   //when shift, shift the register
-  when(io.sCtl.shift) {
+  when(io.sCtl.doShift) {
     //mask off N LSBs of input to shift in
     val inData = (io.shiftInData & ((1.U << io.sCtl.count) - 1.U))
     //when true, shift right

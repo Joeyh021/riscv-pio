@@ -16,8 +16,8 @@ class ShiftRegConfig extends Bundle {
 
 class ShiftControl extends Bundle {
   //when this is asserted, a shift of shiftCount bits takes place
-  val shift      = Input(Bool())
-  val count = Input(UInt(5.W))
+  val doShift = Input(Bool())
+  val count   = Input(UInt(5.W))
 }
 
 class PushPullControl extends Bundle {
