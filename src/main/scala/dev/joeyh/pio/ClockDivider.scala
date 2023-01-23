@@ -17,3 +17,12 @@ class ClockDividerIO extends Bundle {
 class ClockDivider(val inputClockSpeed: Int) extends Module {
   val io = IO(new ClockDividerIO)
 }
+
+object ClockDivider {
+  def apply(inputClockSpeed: Int, integer: UInt, fractional: UInt): Clock = {
+    val divider = Module(new ClockDivider(inputClockSpeed))
+    divider.io.integer := integer
+    divider.io.fractional := fractional
+    divider.io.outputClock
+  }
+}
