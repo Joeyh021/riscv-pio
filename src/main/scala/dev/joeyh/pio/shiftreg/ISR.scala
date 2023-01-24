@@ -3,6 +3,7 @@ package dev.joeyh.pio.shiftreg
 import chisel3._
 import chisel3.util._
 
+//ISR PUSHES to RX FIFO
 class ISR extends Module {
   val io = IO(new ISRIO)
 
@@ -17,9 +18,8 @@ class ISR extends Module {
     shiftCountReg := 0.U
   }
 
-  val saturatingShiftCountSum = 32.U.min(io.ctrl.count + shiftCountReg)
+  val saturatingShiftCountSum = 32.U.min(Mux(io.ctrl.doShift, io.ctrl.count, 0.U) + shiftCountReg)
 
-  //wrap that threshold
   //when shift, shift the register
   when(io.ctrl.doShift) {
     //mask off N LSBs of input to shift in
@@ -43,8 +43,8 @@ class ISR extends Module {
 
   //push if either:
   //we were told to push directly, checking the ifFull condition if flag is set
-  //or, autopush is enabled and we have reached the threshold
-  val doPush = (io.ctrl.doPushPull && (Mux(io.ctrl.iffeFlag, thresholdReached, true.B))) || (io.cfg.autoEnabled && thresholdReached)
+  //or, autopush is enabled AND we have reached the threshold AND we were told to shift (don't push on a non-shift cycle)
+  val doPush = (io.ctrl.doPushPull && Mux(io.ctrl.iffeFlag, thresholdReached, true.B)) || (io.cfg.autoEnabled && thresholdReached && io.ctrl.doShift)
 
   when(doPush) {
     //stall if full
