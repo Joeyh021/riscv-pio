@@ -32,9 +32,20 @@ class OSR extends Module {
     shiftCountReg >= io.cfg.thresh
   )
 
+  //what follows is a very long and complex bit of control flow
+  //it took me a while to get ALL the outputs to drive on each of these cases
+  //tread carefully. It probably doesn't do what you think it does.
+  //there are basically 5 cases, in order of priority
+  //A - on a shift cycle AND autopull is enabled AND we're at threshold BEFORE the shift
+  //B - just a write to the register
+  //C - PULL from the FIFO, but only if NOT(autopull enabled AND shift count is 0)
+  //D - do a shift, maybe autopull after it if that's enabled and we're at threshold after the shift
+  //E - nothing, but we need to drive the data output anyway
+
   //if we're on a shift cycle AND autopull is enabled AND we're at threshold BEFORE the shift
   //then we try to refill and stall (don't do the shift). This overrides the normal shift behaviour
   when(io.ctrl.doShift && io.cfg.autoEnabled && thresholdReachedBeforeShift) {
+    //CASE A
     when(io.fifo.empty) {
       io.fifo.doRead := false.B
     }.otherwise {
@@ -44,56 +55,76 @@ class OSR extends Module {
     }
     //always stall (re-exec the shift with a full register)
     io.stall := true.B
-  }.otherwise {
-    //handle MOV instruction (write direct)
+    //have to always drive all outputs
+    io.shiftOutData := 0.U
+  }
+  //otherwise, handle the rest of the instructions as usual
+  .otherwise {
     when(io.rw.write.enable) {
+      //CASE B
+      //handle MOV instruction (write direct)
       reg := io.rw.write.data
       shiftCountReg := 0.U
-    }
+      io.shiftOutData := 0.U
+      io.stall := false.B
+      io.fifo.doRead := false.B
 
-    //handle PULL instruction
-    //if iff flag high, then we only pull if we're at threshold
-    //also, when autopull is enabled, any PULL instruction is a no-op when the OSR is full
-    when( 
-      io.ctrl.doPushPull && Mux(io.ctrl.iffeFlag, thresholdReachedAfterShift, true.B) && !(io.cfg.autoEnabled && io.shiftCountReg === 0.U)
-    ) {
-      when(io.fifo.empty) {
-        io.stall := true.B //stall if empty on a PULL (always block)
-        io.fifo.doRead := false.B
-      }.otherwise {
-        io.fifo.doRead := true.B
-        reg := io.fifo.read
-        shiftCountReg := 0.U
-      }
-    }
-
-    //handle shift instruction
-    when(io.ctrl.doShift) {
-      when(io.cfg.dir) {
-        //shift out right
-        //mask off N LSBs and present at output
-        io.shiftOutData := reg & ((1.U << io.ctrl.count) - 1.U)
-        reg := reg >> io.ctrl.count //move register right, fill with 0s
-      }.otherwise {
-        //shift out left
-        //put N MSBs at output by shifting the bits down
-        io.shiftOutData := reg >> (32.U - io.ctrl.count)
-        reg := reg << io.ctrl.count //move register left, fill with 0s
-      }
-
-      //handle an autopull after a shift
-      //we will never autopull after a manual pull or mov, so this is okay to be inside this block
-      when((io.cfg.autoEnabled && thresholdReachedAfterShift)) {
+    }.elsewhen(
+        io.ctrl.doPushPull && Mux(io.ctrl.iffeFlag, thresholdReachedAfterShift, true.B) && !(io.cfg.autoEnabled && io.shiftCountReg === 0.U)
+      ) {
+        //CASE C
+        //handle PULL instruction
+        //if iff flag high, then we only pull if we're at threshold
+        //also, when autopull is enabled, any PULL instruction is a no-op when the OSR is full
         when(io.fifo.empty) {
-          //don't stall if we can't autopull
+          io.stall := true.B //stall if empty on a PULL (always block)
           io.fifo.doRead := false.B
         }.otherwise {
+          io.stall := false.B
           io.fifo.doRead := true.B
           reg := io.fifo.read
           shiftCountReg := 0.U
         }
+        io.shiftOutData := 0.U
       }
-    }
+      .elsewhen(io.ctrl.doShift) {
+        // CASE D
+        //handle shift instruction
+        when(io.cfg.dir) {
+          //shift out right
+          //mask off N LSBs and present at output
+          io.shiftOutData := reg & ((1.U << io.ctrl.count) - 1.U)
+          reg := reg >> io.ctrl.count //move register right, fill with 0s
+        }.otherwise {
+          //shift out left
+          //put N MSBs at output by shifting the bits down
+          io.shiftOutData := reg >> (32.U - io.ctrl.count)
+          reg := reg << io.ctrl.count //move register left, fill with 0s
+        }
+
+        //handle an autopull after a shift is executed
+        //can't autopull after a write or explicit pull
+        when(io.cfg.autoEnabled && thresholdReachedAfterShift) {
+          when(io.fifo.empty) {
+            //don't stall if we can't autopull
+            io.fifo.doRead := false.B
+          }.otherwise {
+            io.fifo.doRead := true.B
+            reg := io.fifo.read
+            shiftCountReg := 0.U
+          }
+        }.otherwise { io.fifo.doRead := false.B }
+
+        io.stall := false.B
+
+      }
+      .otherwise({
+        //CASE E
+        //no instruction, just drive outputs
+        io.shiftOutData := 0.U
+        io.stall := false.B
+        io.fifo.doRead := false.B
+      })
 
   }
 
