@@ -24,3 +24,7 @@ lazy val root = (project in file("."))
       "edu.berkeley.cs" % "chisel3-plugin" % chiselVersion cross CrossVersion.full
     )
   )
+
+ThisBuild / libraryDependencySchemes ++= Seq(
+  "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
+)
