@@ -3,26 +3,29 @@ package dev.joeyh.pio
 import chisel3._
 import chisel3.util._
 
-//a 16 bit integer, 8 bit fractional clock divider
-//based off the one in the RP2040 -- see section 3.5.5 of the datasheet
-//parametrised over the system clock speed for genericity
+//A clock divider that divides the input clock by a constant integer divisor
 
-class ClockDividerIO extends Bundle {
-  val integer    = Input(UInt(16.W))
-  val fractional = Input(UInt(8.W))
-  //input clock is implicit
-  val outputClock = Output(Clock())
-}
+class ClockDivider extends Module {
+  val io = IO(new Bundle {
+    val divisor = Input(UInt(32.W))
+    val out     = Output(Clock())
+  })
+  val reg = RegInit(0.U(32.W))
 
-class ClockDivider(val inputClockSpeed: Int) extends Module {
-  val io = IO(new ClockDividerIO)
+  when(reg === io.divisor - 1.U) {
+    reg := 0.U
+    io.out := true.B.asClock
+  }.otherwise {
+    reg := reg + 1.U
+    io.out := false.B.asClock
+  }
+
 }
 
 object ClockDivider {
-  def apply(inputClockSpeed: Int, integer: UInt, fractional: UInt): Clock = {
-    val divider = Module(new ClockDivider(inputClockSpeed))
-    divider.io.integer := integer
-    divider.io.fractional := fractional
-    divider.io.outputClock
+  def apply(divisor: UInt): Clock = {
+    val clkdiv = Module(new ClockDivider)
+    clkdiv.io.divisor := divisor
+    clkdiv.io.out
   }
 }

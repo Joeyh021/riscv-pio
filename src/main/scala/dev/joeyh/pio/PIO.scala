@@ -13,7 +13,7 @@ class PIO extends Module {
 
   //this module exists within the system clock domain
   //the PIO constructed below runs within it's own clock domain
-  val pioClock = ClockDivider(100_000_000, 0.U, 0.U)
+  val pioClock = ClockDivider(csr.io.clockDiv)
   val pioReset = this.reset //FIXME: not properly syncd with pio clock
 
   //these are written by system and read combinationally by PIO
