@@ -4,7 +4,7 @@ import chisel3._
 import chisel3.util._
 import dev.joeyh.pio.util._
 import dev.joeyh.pio.shiftreg.ShiftRegConfig
-import dev.joeyh.pio.memory.PinRegConfig
+import dev.joeyh.pio.PinConfig
 
 //the bank of control and status registers for the PIO block
 //Uses a chisel Mem for combinational read, synchronous write
@@ -18,7 +18,7 @@ class CSRIO extends ReadWrite(UInt(16.W)) {
   val wrapTarget = Output(UInt(5.W))
   val osrCfg     = Output(new ShiftRegConfig)
   val isrCfg     = Output(new ShiftRegConfig)
-  val pinCfg     = Output(new PinRegConfig)
+  val pinCfg     = Output(new PinConfig)
   val clockDiv   = Output(UInt(32.W))
   //other config signals
   val branchPin = Output(UInt(5.W))
