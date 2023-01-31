@@ -20,11 +20,11 @@ class PinConfig extends Bundle {
 //because chisel doesn't support inout
 class PinIO extends ReadWrite(UInt(32.W)) {
   val cfg  = Input(new PinConfig)
-  val pins = Vec(32, Analog(1.W))
+  val pins = Analog(32.W)
 
 }
 
 class Pins extends BlackBox with HasBlackBoxResource {
   val io = IO(new PinIO)
-  addResource("vsrc/gpio_pins.v")
+  addResource("vsrc/Pins.v")
 }

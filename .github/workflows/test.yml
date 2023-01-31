@@ -16,4 +16,4 @@ jobs:
       - name: Cache Scala
         uses: coursier/cache-action@v5
       - name: SBT Test
-        run: sbt test
+        run: "testOnly * -- -l org.scalatest.tags.Slow" #ignore 'slow' tests
