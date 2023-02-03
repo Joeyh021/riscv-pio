@@ -39,7 +39,7 @@ class Fifo extends RawModule {
 
     //write into the memory at writeAddress when producer signals a doWrite
     when(io.producer.doWrite) {
-      mem.write(writeAddress, io.producer.write)
+      mem.write(writeAddress, io.producer.write, io.producerClock)
     }
   }
 
@@ -66,18 +66,23 @@ class ReadPointer extends Module {
     val doRead              = Input(Bool())
   })
 
+  val readBinaryNext = Wire(UInt(3.W))
+  val readGrayNext   = Wire(UInt(3.W))
+
   val readPointer = RegInit(0.U(3.W)) //gray-coded read pointer
   readPointer := readGrayNext
   val readBinary = RegInit(0.U(3.W)) //binary-coded read pointer
   readBinary := readBinaryNext
 
-  io.address := readBinary(1, 0)
-
-  val readBinaryNext = readBinary + (io.doRead && !empty) //increment if told to and not empty
-  val readGrayNext   = (readBinaryNext >> 1) ^ readBinaryNext
-
   //is the fifo empty?
   val empty = RegInit(true.B) //fifo is empty on reset
+
+  io.address := readBinary(1, 0)
+  io.pointer := readPointer
+
+  readBinaryNext := readBinary + (io.doRead && !empty) //increment if told to and not empty
+  readGrayNext := (readBinaryNext >> 1) ^ readBinaryNext
+
   empty := (readGrayNext === io.writePointerCrossed)
   io.empty := empty
 }
@@ -91,18 +96,22 @@ class WritePointer extends Module {
     val doWrite            = Input(Bool())
   })
 
+  val writeBinaryNext = Wire(UInt(3.W))
+  val writeGrayNext   = Wire(UInt(3.W))
+
   val writePointer = RegInit(0.U(3.W)) //gray-coded write pointer
   writePointer := writeGrayNext
   val writeBinary = RegInit(0.U(3.W)) //binary-coded write pointer
   writeBinary := writeBinaryNext
 
   io.address := writeBinary(1, 0)
-
-  val writeBinaryNext = writeBinary + (io.doWrite && !full) //increment if told to and not empty
-  val writeGrayNext   = (writeBinaryNext >> 1) ^ writeBinaryNext
+  io.pointer := writePointer
 
   //is the fifo full?
   val full = RegInit(false.B) //fifo is empty on reset
+
+  writeBinaryNext := writeBinary + (io.doWrite && !full) //increment if told to and not empty
+  writeGrayNext := (writeBinaryNext >> 1) ^ writeBinaryNext
 
   //the three conditions we need for full
   full := ((writeGrayNext(2) =/= io.readPointerCrossed(2))
