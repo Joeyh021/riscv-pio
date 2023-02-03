@@ -25,15 +25,22 @@ class Fifo extends RawModule {
   val readPointer  = Wire(UInt(3.W))
   val writePointer = Wire(UInt(3.W))
 
-  //write clock domain (producer)
+  //the actual fifo memory
+  val mem = Mem(4, UInt(32.W))
+
   withClockAndReset(io.producerClock, io.producerReset) {
-    val write              = Module(new WritePointer)
-    val readPointerCrossed = SyncPointer(readPointer)
+    val write = Module(new WritePointer)
+
     io.producer.full := write.io.full
     writeAddress := write.io.address
     writePointer := write.io.pointer
     write.io.readPointerCrossed := SyncPointer(readPointer)
     write.io.doWrite := io.producer.doWrite
+
+    //write into the memory at writeAddress when producer signals a doWrite
+    when(io.producer.doWrite) {
+      mem.write(writeAddress, io.producer.write)
+    }
   }
 
   //read clock domain (consumer)
@@ -45,8 +52,9 @@ class Fifo extends RawModule {
     readPointer := read.io.pointer
     read.io.writePointerCrossed := SyncPointer(writePointer)
     read.io.doRead := io.consumer.doRead
-  }
 
+    io.consumer.read := mem.read(readAddress)
+  }
 }
 
 class ReadPointer extends Module {
@@ -104,26 +112,14 @@ class WritePointer extends Module {
   io.full := full
 }
 
-//runs in the clock domain of the OUTPUT pointer
-class SyncPointer extends Module {
-  val io = IO(new Bundle {
-    val syncedPointer = Output(UInt(3.W))
-    val inputPointer  = Input(UInt(3.W))
-  })
-
-  //synchronise through a pair of registers
-  val reg1 = RegInit(0.U)
-  val reg2 = RegInit(0.U)
-
-  io.syncedPointer := reg2
-  reg2 := reg1
-  reg1 := io.inputPointer
-}
-
 object SyncPointer {
   def apply(inputPointer: UInt) = {
-    val m = Module(new SyncPointer)
-    m.io.inputPointer := inputPointer
-    m.io.syncedPointer
+    //synchronise through a pair of registers
+    val reg1 = RegInit(0.U)
+    val reg2 = RegInit(0.U)
+    reg1 := inputPointer
+    reg2 := reg1
+    reg2
+
   }
 }
