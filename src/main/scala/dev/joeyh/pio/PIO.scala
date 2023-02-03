@@ -22,13 +22,13 @@ class PIO extends Module {
   val csr          = Module(new memory.CSR(10))
   val instructions = Module(new memory.InstructionMem)
 
-  val txFifo = Module(new fifo.FIFO)
+  val txFifo = Module(new fifo.Fifo)
   txFifo.io.producerClock := this.clock
   txFifo.io.producerReset := this.reset
   txFifo.io.consumerClock := pioClock
   txFifo.io.consumerReset := pioReset
 
-  val rxFifo = Module(new fifo.FIFO)
+  val rxFifo = Module(new fifo.Fifo)
   rxFifo.io.producerClock := pioClock
   rxFifo.io.producerReset := pioReset
   rxFifo.io.consumerClock := this.clock
