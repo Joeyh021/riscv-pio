@@ -1,4 +1,3 @@
-//
 module Pins(
     input [8:0] cfg_inBase, cfg_inCount, cfg_outBase, cfg_outCount,
     output [31:0] read,
@@ -28,4 +27,4 @@ module Pins(
     end
 
 
-endmodule;
+endmodule
