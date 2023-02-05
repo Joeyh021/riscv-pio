@@ -12,7 +12,7 @@ import dev.joeyh.pio.PinConfig
 //literally just a smaller instruction memory
 //parametrised so can easily add more fields
 
-class CSRIO extends ReadWrite(UInt(16.W)) {
+class CSRIO extends ReadWrite(UInt(32.W)) {
   val address = Input(UInt(5.W))
 
   val wrapTarget = Output(UInt(5.W))
@@ -27,7 +27,7 @@ class CSRIO extends ReadWrite(UInt(16.W)) {
 class CSR(registers: Int) extends Module {
   val io = IO(new CSRIO)
 
-  val mem = Mem(registers, UInt(16.W))
+  val mem = Mem(registers, UInt(32.W))
 
   io.read := mem(io.address)
 

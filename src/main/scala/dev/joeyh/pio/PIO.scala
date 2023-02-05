@@ -12,16 +12,17 @@ class PIOIO extends Bundle {}
 class PIO extends Module {
   val io = IO(new PIOIO)
 
-  //this module exists within the system clock domain
-  //the PIO constructed below runs within it's own clock domain
-  val pioClock = ClockDivider(csr.io.clockDiv)
-  val pioReset = this.reset //FIXME: not properly syncd with pio clock
-
   //these are written by system and read combinationally by PIO
   //so they should be in system clock domain
   val csr          = Module(new memory.CSR(10))
   val instructions = Module(new memory.InstructionMem)
 
+  //this module exists within the system clock domain
+  //the PIO constructed below runs within it's own clock domain
+  val pioClock = ClockDivider(csr.io.clockDiv)
+  val pioReset = this.reset //FIXME: probably not properly syncd with pio clock
+
+  //does not matter which clock domain these are in because they have no implicit clock
   val txFifo = Module(new fifo.Fifo)
   txFifo.io.producerClock := this.clock
   txFifo.io.producerReset := this.reset
@@ -34,6 +35,7 @@ class PIO extends Module {
   rxFifo.io.consumerClock := this.clock
   rxFifo.io.consumerReset := this.reset
 
+  // the pio clock domain
   withClockAndReset(pioClock, pioReset) {
     val isr      = Module(new shiftreg.ISR)
     val osr      = Module(new shiftreg.OSR)
@@ -68,6 +70,7 @@ class PIO extends Module {
     isr.io.rw <> execUnit.io.isr
 
     //shift registers and exex unit needs read/write to pins and scratch registers
+    isr.io.
 
   }
 
