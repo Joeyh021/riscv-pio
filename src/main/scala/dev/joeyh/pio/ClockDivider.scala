@@ -7,10 +7,10 @@ import chisel3.util._
 
 class ClockDivider extends Module {
   val io = IO(new Bundle {
-    val divisor = Input(UInt(32.W))
+    val divisor = Input(UInt(16.W))
     val out     = Output(Clock())
   })
-  val reg = RegInit(0.U(32.W))
+  val reg = RegInit(0.U(16.W))
 
   when(reg === io.divisor - 1.U) {
     reg := 0.U

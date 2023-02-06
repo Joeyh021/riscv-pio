@@ -2,10 +2,17 @@ package dev.joeyh.pio
 
 import chisel3._
 import chisel3.util._
+import dev.joeyh.pio.util.ReadWrite
 
-import dev.joeyh.pio.Pins
 //the top level PIO interface
-class PIOIO extends Bundle {}
+class PIOIO extends Bundle {
+  //address CSR and instructions in one 8-bit address space
+  val address = Input(UInt(8.W))
+  val rw      = new ReadWrite(UInt(16.W))
+
+  val rx = new fifo.ConsumerIO
+  val tx = new fifo.ProducerIO
+}
 
 //top level PIO module
 //most of the subcomponents are connected in here
@@ -14,8 +21,32 @@ class PIO extends Module {
 
   //these are written by system and read combinationally by PIO
   //so they should be in system clock domain
-  val csr          = Module(new memory.CSR(10))
+  val csr          = Module(new memory.CSR)
   val instructions = Module(new memory.InstructionMem)
+
+  //split this address space in half
+  //we have 8 bits, so 256 possible 16-bit words
+  //split into 32-bit spaces using top 3 bits as tag
+  //the lower 32 are instruction memory
+  //next 32 are CSR
+
+  instructions.io.address := io.address >> 3
+  instructions.io.write.enable := io.rw.write.enable && !io.address(7, 5) === 0.U
+  instructions.io.write.data := io.rw.write.data
+
+  csr.io.address := io.address >> 5
+  csr.io.write.enable := io.rw.write.enable && io.address(7, 5) === 1.U
+  csr.io.write.data := io.rw.write.data
+
+  //mux for splitting reads
+  io.rw.read := MuxLookup(
+    io.address(7, 5),
+    0.U,
+    Seq(
+      0.U -> instructions.io.read,
+      1.U -> instructions.io.read
+    )
+  )
 
   //this module exists within the system clock domain
   //the PIO constructed below runs within it's own clock domain
@@ -28,12 +59,14 @@ class PIO extends Module {
   txFifo.io.producerReset := this.reset
   txFifo.io.consumerClock := pioClock
   txFifo.io.consumerReset := pioReset
+  txFifo.io.producer <> io.tx
 
   val rxFifo = Module(new fifo.Fifo)
   rxFifo.io.producerClock := pioClock
   rxFifo.io.producerReset := pioReset
   rxFifo.io.consumerClock := this.clock
   rxFifo.io.consumerReset := this.reset
+  rxFifo.io.consumer <> io.rx
 
   // the pio clock domain
   withClockAndReset(pioClock, pioReset) {
@@ -55,8 +88,10 @@ class PIO extends Module {
     isr.io.cfg := csr.io.isrCfg
 
     osr.io.ctrl := execUnit.io.osrCtl
-    osr.io.fifo <> rxFifo.io.consumer
+    osr.io.fifo <> txFifo.io.consumer
     osr.io.cfg := csr.io.osrCfg
+
+    //fifo inputs from system
 
     //other exec unit inputs
     execUnit.io.osrEmpty := osr.io.shiftCountReg === 0.U
@@ -65,12 +100,33 @@ class PIO extends Module {
     //stall from shift regs
     execUnit.io.stall := isr.io.stall || osr.io.stall
 
-    //direct reads/writes to/from shift registers
+    //most reads/writes go through the exec unit
     osr.io.rw <> execUnit.io.osr
     isr.io.rw <> execUnit.io.isr
+    scratchX.io <> execUnit.io.x
+    scratchY.io <> execUnit.io.y
 
-    //shift registers and exex unit needs read/write to pins and scratch registers
-    isr.io.
+    //misc exec unit stuff
+    execUnit.io.stall := isr.io.stall | osr.io.stall //either may cause a stall
+
+    execUnit.io.osrEmpty := osr.io.shiftCountReg === 0.U
+    execUnit.io.branchPin := csr.io.branchPin
+
+    //writes for pins, from osr and exec unit
+    pins.io.write.enable := execUnit.io.osrCtl.doShift | execUnit.io.pins.write.enable
+    pins.io.write.data := MuxCase(
+      0.U,
+      Seq(
+        execUnit.io.osrCtl.doShift    -> osr.io.shiftOutData,
+        execUnit.io.pins.write.enable -> execUnit.io.pins.write.data
+      )
+    )
+
+    //reads for pins, exec unit and ISR
+    execUnit.io.pins.read := pins.io.read
+    isr.io.shiftInData := pins.io.read
+
+    pins.io.cfg := csr.io.pinCfg
 
   }
 
