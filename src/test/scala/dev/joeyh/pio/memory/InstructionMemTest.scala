@@ -14,7 +14,7 @@ class InstructionMemTest extends AnyFlatSpec with ChiselScalatestTester {
       val v1 = RandomUInt(16)
 
       //put value
-      uut.io.address.poke(a1)
+      uut.io.writeAddress.poke(a1)
       uut.io.write.enable.poke(true)
       uut.io.write.data.poke(v1)
       uut.clock.step()
@@ -33,7 +33,7 @@ class InstructionMemTest extends AnyFlatSpec with ChiselScalatestTester {
       val a2 = RandomUInt(5)
       val v2 = RandomUInt(16)
 
-      uut.io.address.poke(a2)
+      uut.io.readAddress.poke(a2)
       uut.io.write.data.poke(v2)
 
       uut.clock.step()

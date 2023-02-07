@@ -18,10 +18,10 @@ class PIOTest extends AnyFlatSpec with ChiselScalatestTester {
       //write program to pio
       uut.io.rw.write.enable.poke(true)
 
-      program.zipWithIndex.foreach {
-        case (instruction, address) =>
-          uut.io.address.poke(address.U)
-          uut.io.rw.write.data.poke(instruction)
+      program.zip(Seq(0.U, 1.U, 2.U)).foreach {
+        case (a, i) =>
+          uut.io.address.poke(i)
+          uut.io.rw.write.data.poke(a)
           uut.clock.step()
       }
       //set csrs
@@ -40,6 +40,7 @@ class PIOTest extends AnyFlatSpec with ChiselScalatestTester {
       uut.io.address.poke(36)
       uut.io.rw.write.data.poke("b00000001_00000000".U)
       uut.clock.step()
+      uut.io.rw.write.enable.poke(false)
 
       //should run?
       uut.clock.step(20)

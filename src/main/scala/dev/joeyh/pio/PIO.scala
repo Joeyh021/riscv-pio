@@ -30,11 +30,11 @@ class PIO extends Module {
   //the lower 32 are instruction memory
   //next 32 are CSR
 
-  instructions.io.address := io.address >> 3
-  instructions.io.write.enable := io.rw.write.enable && !io.address(7, 5) === 0.U
+  instructions.io.writeAddress := io.address
+  instructions.io.write.enable := io.rw.write.enable && io.address(7, 5) === 0.U
   instructions.io.write.data := io.rw.write.data
 
-  csr.io.address := io.address >> 5
+  csr.io.address := (io.address - 32.U)(2, 0)
   csr.io.write.enable := io.rw.write.enable && io.address(7, 5) === 1.U
   csr.io.write.data := io.rw.write.data
 
@@ -79,7 +79,7 @@ class PIO extends Module {
 
     //instruction reads
     execUnit.io.instruction := instructions.io.read
-    instructions.io.address := execUnit.io.instructionAddress
+    instructions.io.readAddress := execUnit.io.instructionAddress
     execUnit.io.wrapTarget := csr.io.wrapTarget
 
     //shift/fifo control
