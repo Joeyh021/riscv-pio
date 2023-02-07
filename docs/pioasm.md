@@ -121,6 +121,7 @@ Write an immediate value to a destination
 
 - 001 - X
 - 010 - Y
+- 110 - pins
 
 ## Other Details
 

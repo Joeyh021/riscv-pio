@@ -25,17 +25,17 @@ class CSRIO extends ReadWrite(UInt(16.W)) {
 
 class CSR extends Module {
   val io = IO(new CSRIO)
+  object addressMap {
+    val clockDiv        = 0.U
+    val branchPin       = 1.U
+    val wrapTarget      = 2.U
+    val inputPinConfig  = 3.U
+    val outputPinConfig = 4.U
+    val isrCfg          = 5.U
+    val osrCfg          = 6.U
+  }
 
-  val addressMap = Map(
-    "clockDiv"   -> 0x0,
-    "branchPin"  -> 0x2,
-    "wrapTarget" -> 0x4,
-    "pinCfg"     -> 0x6,
-    "isrCfg"     -> 0x8,
-    "osrCfg"     -> 0xA
-  )
-
-  val mem = Mem(6, UInt(32.W))
+  val mem = Mem(6, UInt(16.W))
 
   io.read := mem.read(io.address)
 
@@ -44,19 +44,22 @@ class CSR extends Module {
   }
 
   //reads for individual registers
-  io.clockDiv := mem(0)
+  io.clockDiv := mem(addressMap.clockDiv)
 
-  io.branchPin := mem(1)(4, 0)
-  io.wrapTarget := mem(2)(4, 0)
+  io.branchPin := mem(addressMap.branchPin)(4, 0)
+  io.wrapTarget := mem(addressMap.wrapTarget)(4, 0)
 
-  io.pinCfg := mem(3).asTypeOf(new PinConfig)
+  io.pinCfg.inBase := mem(addressMap.inputPinConfig)(7, 0)
+  io.pinCfg.inCount := mem(addressMap.inputPinConfig)(15, 8)
+  io.pinCfg.outBase := mem(addressMap.outputPinConfig)(7, 0)
+  io.pinCfg.outCount := mem(addressMap.outputPinConfig)(15, 8)
 
-  io.osrCfg.autoEnabled := mem(4)(0) //could use dataview implicits here but probably unnecessary
-  io.osrCfg.dir := mem(4)(1)
-  io.osrCfg.thresh := mem(4)(6, 2)
+  io.osrCfg.autoEnabled := mem(addressMap.osrCfg)(0) //could use dataview implicits here but probably unnecessary
+  io.osrCfg.dir := mem(addressMap.osrCfg)(1)
+  io.osrCfg.thresh := mem(addressMap.osrCfg)(6, 2)
 
-  io.isrCfg.autoEnabled := mem(5)(0)
-  io.isrCfg.dir := mem(5)(1)
-  io.isrCfg.thresh := mem(5)(6, 2)
+  io.isrCfg.autoEnabled := mem(addressMap.isrCfg)(0)
+  io.isrCfg.dir := mem(addressMap.isrCfg)(1)
+  io.isrCfg.thresh := mem(addressMap.isrCfg)(6, 2)
 
 }
