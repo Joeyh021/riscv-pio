@@ -20,6 +20,7 @@ class InstructionMemTest extends AnyFlatSpec with ChiselScalatestTester {
       uut.clock.step()
 
       //read value
+      uut.io.readAddress.poke(a1)
       uut.io.read.expect(v1, "Unit should read value written")
 
       //disable write
@@ -33,17 +34,19 @@ class InstructionMemTest extends AnyFlatSpec with ChiselScalatestTester {
       val a2 = RandomUInt(5)
       val v2 = RandomUInt(16)
 
-      uut.io.readAddress.poke(a2)
+      uut.io.writeAddress.poke(a2)
       uut.io.write.data.poke(v2)
 
       uut.clock.step()
 
-      uut.io.read.expect(0, "Unit should not read value written")
+      uut.io.readAddress.poke(a2)
+      uut.io.read.expect(0, "value should not have been written")
 
       uut.io.write.enable.poke(true)
       uut.clock.step()
 
-      uut.io.read.expect(v2, "Unit should read value written")
+      uut.io.readAddress.poke(a2)
+      uut.io.read.expect(v2, "value should have been written")
 
     }
   }

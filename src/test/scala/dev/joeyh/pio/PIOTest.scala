@@ -3,7 +3,9 @@ package dev.joeyh.pio
 import chisel3._
 import chiseltest._
 import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.tags.Slow
 
+@Slow
 class PIOTest extends AnyFlatSpec with ChiselScalatestTester {
   behavior of "PIO Block "
 
@@ -99,5 +101,7 @@ class PIOTest extends AnyFlatSpec with ChiselScalatestTester {
       uut.clock.step(20)
     }
   }
+
+  it should "ws2812b" in {}
 
 }
