@@ -22,7 +22,7 @@ module Pins(
     wire [31:0] outputEnables = outMask << cfg_outBase;
     //generate 32 iobufs
     for(genvar i = 0; i < 10; i = i+1) begin
-        assign pins[i] = write_enable ? outputData[i] : 1'bz;
+        assign pins[i] = outputEnables[i] ? outputData[i] : 1'bz;
         assign inputData[i] = pins[i];
     end
 
