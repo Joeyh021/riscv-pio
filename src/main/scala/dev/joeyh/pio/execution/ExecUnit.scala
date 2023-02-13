@@ -13,7 +13,7 @@ class ExecUnitIO extends Bundle {
   val instructionAddress = Output(UInt(5.W))
 
   //wrap target config from CSR from PC
-  val wrapTarget = Input(UInt(5.W))
+  val wrapCfg = Input(new WrapConfig)
 
   //register reads/writes
   val x    = Flipped(ReadWrite(UInt(32.W)))
@@ -46,7 +46,7 @@ class ExecUnit extends Module {
 
   //connect up the program counter
   val pc = Module(new ProgramCounter)
-  pc.io.wrapTarget := io.wrapTarget
+  pc.io.wrapCfg := io.wrapCfg
 
   //address for instruction read comes from pc
   io.instructionAddress := pc.io.read

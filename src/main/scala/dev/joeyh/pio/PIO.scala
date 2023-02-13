@@ -80,7 +80,7 @@ class PIO extends Module {
     //instruction reads
     execUnit.io.instruction := instructions.io.read
     instructions.io.readAddress := execUnit.io.instructionAddress
-    execUnit.io.wrapTarget := csr.io.wrapTarget
+    execUnit.io.wrapCfg := csr.io.wrapCfg
 
     //shift/fifo control
     isr.io.ctrl := execUnit.io.isrCtl

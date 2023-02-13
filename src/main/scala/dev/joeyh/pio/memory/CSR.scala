@@ -6,6 +6,7 @@ import dev.joeyh.pio.util._
 import dev.joeyh.pio.shiftreg.ShiftRegConfig
 import dev.joeyh.pio.PinConfig
 import chisel3.experimental.dataview.DataView
+import dev.joeyh.pio.execution.WrapConfig
 
 //the bank of control and status registers for the PIO block
 //Uses a chisel Mem for combinational read, synchronous write
@@ -14,13 +15,13 @@ import chisel3.experimental.dataview.DataView
 class CSRIO extends ReadWrite(UInt(16.W)) {
   val address = Input(UInt(3.W))
 
-  val clockDiv   = Output(UInt(16.W))
-  val branchPin  = Output(UInt(5.W))
-  val wrapTarget = Output(UInt(5.W))
+  val clockDiv  = Output(UInt(16.W))
+  val branchPin = Output(UInt(5.W))
 
-  val pinCfg = Output(new PinConfig)
-  val isrCfg = Output(new ShiftRegConfig)
-  val osrCfg = Output(new ShiftRegConfig)
+  val wrapCfg = Output(new WrapConfig)
+  val pinCfg  = Output(new PinConfig)
+  val isrCfg  = Output(new ShiftRegConfig)
+  val osrCfg  = Output(new ShiftRegConfig)
 }
 
 class CSR extends Module {
@@ -28,7 +29,7 @@ class CSR extends Module {
   object addressMap {
     val clockDiv        = 0.U
     val branchPin       = 1.U
-    val wrapTarget      = 2.U
+    val wrapConfig      = 2.U
     val inputPinConfig  = 3.U
     val outputPinConfig = 4.U
     val isrCfg          = 5.U
@@ -47,7 +48,10 @@ class CSR extends Module {
   io.clockDiv := mem(addressMap.clockDiv)
 
   io.branchPin := mem(addressMap.branchPin)(4, 0)
-  io.wrapTarget := mem(addressMap.wrapTarget)(4, 0)
+
+  io.wrapCfg.enable := mem(addressMap.wrapConfig)(15)
+  io.wrapCfg.target := mem(addressMap.wrapConfig)(4, 0)
+  io.wrapCfg.trigger := mem(addressMap.wrapConfig)(9, 5)
 
   io.pinCfg.inBase := mem(addressMap.inputPinConfig)(7, 0)
   io.pinCfg.inCount := mem(addressMap.inputPinConfig)(15, 8)

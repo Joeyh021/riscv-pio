@@ -10,7 +10,7 @@ class ProgramCounterTest extends AnyFlatSpec with ChiselScalatestTester {
   it should "count" in {
     test(new ProgramCounter) { uut =>
       //set wrap target to 0 (disable) and write enable low
-      uut.io.wrapTarget.poke(0)
+      uut.io.wrapCfg.enable.poke(0)
       uut.io.write.enable.poke(false)
       uut.io.increment.poke(true)
 
@@ -35,7 +35,10 @@ class ProgramCounterTest extends AnyFlatSpec with ChiselScalatestTester {
   it should "wrap" in {
     test(new ProgramCounter) { uut =>
       //set wrap target to 10, disable write, allow auto increment
-      uut.io.wrapTarget.poke(10)
+      uut.io.wrapCfg.enable.poke(1)
+      uut.io.wrapCfg.trigger.poke(10)
+      uut.io.wrapCfg.target.poke(0)
+
       uut.io.write.enable.poke(false)
       uut.io.increment.poke(true)
 
@@ -52,7 +55,7 @@ class ProgramCounterTest extends AnyFlatSpec with ChiselScalatestTester {
   it should "jump" in {
     test(new ProgramCounter) { uut =>
       //disable wrap and write, allow auto increment
-      uut.io.wrapTarget.poke(0)
+      uut.io.wrapCfg.enable.poke(0)
       uut.io.write.enable.poke(false)
       uut.io.increment.poke(true)
 
@@ -76,7 +79,10 @@ class ProgramCounterTest extends AnyFlatSpec with ChiselScalatestTester {
   it should "ignore wrap when jumping" in {
     test(new ProgramCounter) { uut =>
       //enable wrap and increment, disable write
-      uut.io.wrapTarget.poke(12)
+      uut.io.wrapCfg.enable.poke(1)
+      uut.io.wrapCfg.trigger.poke(12)
+      uut.io.wrapCfg.target.poke(2)
+
       uut.io.write.enable.poke(false)
       uut.io.increment.poke(true)
 
@@ -96,7 +102,7 @@ class ProgramCounterTest extends AnyFlatSpec with ChiselScalatestTester {
       uut.io.read.expect(10, "counter should wrap around 31")
 
       uut.clock.step(5)
-      uut.io.read.expect(2, "counter should wrap around 12")
+      uut.io.read.expect(4, "counter should wrap around 12")
 
     }
   }
