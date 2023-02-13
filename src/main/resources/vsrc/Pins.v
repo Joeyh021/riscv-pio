@@ -2,6 +2,7 @@ module Pins(
     input [8:0] cfg_inBase, cfg_inCount, cfg_outBase, cfg_outCount,
     output [31:0] read,
     input [31:0] write_data,
+    input sideSet,
     input write_enable,
     inout [31:0] pins
 );
@@ -20,11 +21,15 @@ module Pins(
             outputData = (write_data & outMask) << cfg_outBase;
 
     wire [31:0] outputEnables = outMask << cfg_outBase;
-    //generate 32 iobufs
-    for(genvar i = 0; i < 10; i = i+1) begin
+
+    //generate THIRTY ONE iobufs
+    for(genvar i = 0; i < 31; i = i+1) begin
         assign pins[i] = outputEnables[i] ? outputData[i] : 1'bz;
         assign inputData[i] = pins[i];
     end
+
+    //32nd output is always side set
+    assign pins[31] = sideSet;
 
 
 endmodule

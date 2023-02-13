@@ -19,9 +19,9 @@ class PinConfig extends Bundle {
 //this needs wrapping in a verilog module
 //because chisel doesn't support inout
 class PinIO extends ReadWrite(UInt(32.W)) {
-  val cfg  = Input(new PinConfig)
-  val pins = Analog(32.W)
-
+  val cfg     = Input(new PinConfig)
+  val pins    = Analog(32.W)
+  val sideSet = Input(Bool())
 }
 
 class Pins extends BlackBox with HasBlackBoxResource {

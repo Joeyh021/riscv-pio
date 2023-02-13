@@ -102,6 +102,54 @@ class PIOTest extends AnyFlatSpec with ChiselScalatestTester {
     }
   }
 
-  it should "ws2812b" in {}
+  it should "do the ws2812b thing" in {
+    test(new PIO).withAnnotations(Seq(VerilatorBackendAnnotation, WriteVcdAnnotation)) { uut =>
+      uut.reset.poke(true.B)
+      //program
+      val program = Seq(
+        "b011_0_0010_000_00001".U, //shift 1 bit from OSR into X, side set 0, delay 2
+        "b000_1_0001_001_00001".U, //branch on value of X (if x is zero then jump to 3, else fall through to 2), side 1 delay 1
+        "b000_1_0100_000_00000".U,  //jump back to 0, side 1 delay 4
+        "b101_0_0100_101_00_101".U //nop, side 0, delay 4
+      )
+
+      //write program to pio
+      uut.io.rw.write.enable.poke(true)
+      program.zipWithIndex.foreach {
+        case (a, i) =>
+          uut.io.address.poke(i)
+          uut.io.rw.write.data.poke(a)
+          uut.clock.step()
+      }
+      //set csrs
+
+      //clock divider to 2
+      uut.io.address.poke(32)
+      uut.io.rw.write.data.poke(2)
+      uut.clock.step()
+
+      //branch pin can be left
+
+      //wrap target needs to be set to 0, wrap trigger 3 (our loop)
+      uut.io.address.poke(34)
+      uut.io.rw.write.data.poke("b1_00000_00011_00000".U)
+      uut.clock.step()
+
+      //isr/osr config
+      //set autopull to 24 bits, shift direction right
+      uut.io.address.poke(38.U)
+      uut.io.rw.write.data.poke("b_11000_1_1".U) //auto enabled with thresh 24, shift right
+      uut.clock.step()
+
+      //pin config
+      //leave input and output as zero, only using side set pin
+
+      //pull reset low and go
+      uut.reset.poke(false.B)
+
+      //should run!
+      uut.clock.step(100)
+    }
+  }
 
 }

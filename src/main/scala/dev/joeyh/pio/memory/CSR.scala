@@ -36,7 +36,7 @@ class CSR extends Module {
     val osrCfg          = 6.U
   }
 
-  val mem = Mem(6, UInt(16.W))
+  val mem = Mem(7, UInt(16.W))
 
   io.read := mem.read(io.address)
 

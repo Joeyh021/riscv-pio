@@ -91,8 +91,6 @@ class PIO extends Module {
     osr.io.fifo <> txFifo.io.consumer
     osr.io.cfg := csr.io.osrCfg
 
-    //fifo inputs from system
-
     //other exec unit inputs
     execUnit.io.osrEmpty := osr.io.shiftCountReg === 0.U
     execUnit.io.branchPin := csr.io.branchPin
@@ -111,6 +109,8 @@ class PIO extends Module {
 
     execUnit.io.osrEmpty := osr.io.shiftCountReg === 0.U
     execUnit.io.branchPin := csr.io.branchPin
+
+    pins.io.sideSet := execUnit.io.sideSet //connect side set to pins
 
     //writes for pins, from osr and exec unit
     pins.io.write.enable := execUnit.io.osrCtl.doShift | execUnit.io.pins.write.enable
