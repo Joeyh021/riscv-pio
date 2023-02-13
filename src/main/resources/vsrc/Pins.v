@@ -17,7 +17,7 @@ module Pins(
     //WE WANT THIS TO LATCH
     always @ *
         if(write_enable)
-            outputData = (write_data >> cfg_outBase) & outMask;
+            outputData = (write_data & outMask) << cfg_outBase;
 
     wire [31:0] outputEnables = outMask << cfg_outBase;
     //generate 32 iobufs

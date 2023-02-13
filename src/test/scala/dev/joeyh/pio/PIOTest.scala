@@ -78,9 +78,9 @@ class PIOTest extends AnyFlatSpec with ChiselScalatestTester {
       uut.clock.step()
 
       //branch pin can be left
-      //wrap target needs to be set to 2 (top of our loop)
+      //wrap target needs to be set to 2, wrap trigger 3 (our loop)
       uut.io.address.poke(34)
-      uut.io.rw.write.data.poke(2.U)
+      uut.io.rw.write.data.poke("b1_00000_00011_00010".U)
       uut.clock.step()
       //isr/osr config can be left
 
