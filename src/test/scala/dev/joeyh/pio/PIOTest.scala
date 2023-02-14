@@ -108,8 +108,8 @@ class PIOTest extends AnyFlatSpec with ChiselScalatestTester {
       //program
       val program = Seq(
         "b011_0_0010_000_00001".U, //shift 1 bit from OSR into X, side set 0, delay 2
-        "b000_1_0001_001_00001".U, //branch on value of X (if x is zero then jump to 3, else fall through to 2), side 1 delay 1
-        "b000_1_0100_000_00000".U,  //jump back to 0, side 1 delay 4
+        "b000_1_0001_001_00011".U, //branch on value of X (if x is zero then jump to 3, else fall through to 2), side 1 delay 1
+        "b000_1_0100_000_00000".U, //jump back to 0, side 1 delay 4
         "b101_0_0100_101_00_101".U //nop, side 0, delay 4
       )
 

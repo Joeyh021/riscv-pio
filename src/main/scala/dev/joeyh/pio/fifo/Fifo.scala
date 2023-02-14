@@ -9,11 +9,11 @@ import chisel3.util._
 
 class AsyncFifoIO extends Bundle {
   val producerClock = Input(Clock())
-  val producerReset = Input(Bool())
+  val producerReset = Input(Reset())
   val producer      = new ProducerIO
 
   val consumerClock = Input(Clock())
-  val consumerReset = Input(Bool())
+  val consumerReset = Input(Reset())
   val consumer      = new ConsumerIO
 }
 
