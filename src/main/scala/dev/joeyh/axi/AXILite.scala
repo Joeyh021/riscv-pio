@@ -29,17 +29,13 @@ class AXILiteReadData(dataWidth: Int) extends Bundle {
 //decoupled is producer/output by default
 //clock and reset (active low) are implicit
 class AXILiteSlave(addrWidth: Int, dataWidth: Int) extends Bundle {
-  val clock         = Input(Clock())
-  val reset         = Input(Bool())
-  val readAddr      = Flipped(Decoupled(new AXILiteAddress(addrWidth))) //in
-  val readData      = Decoupled(new AXILiteReadData(dataWidth)) //out
-  val writeAddr     = Flipped(Decoupled(new AXILiteAddress(addrWidth))) //in
-  val writeData     = Flipped(Decoupled(new AXILiteWriteData(addrWidth))) //in
-  val writeResponse = Decoupled(UInt(2.W)) //out, write response channel
+  val readAddr      = Flipped(Decoupled(new AXILiteAddress(addrWidth)))   //in
+  val readData      = Decoupled(new AXILiteReadData(dataWidth))           //out
+  val writeAddr     = Flipped(Decoupled(new AXILiteAddress(addrWidth)))   //in
+  val writeData     = Flipped(Decoupled(new AXILiteWriteData(dataWidth))) //in
+  val writeResponse = Decoupled(UInt(2.W))                                //out, write response channel
 
   //rename ports to match xilinx convention
-  forceName(clock, "S_AXI_ACLK")
-  forceName(reset, "S_AXI_ARESETN")
 
   forceName(readAddr.bits.addr, "S_AXI_ARADDR")
   forceName(readAddr.bits.prot, "S_AXI_ARPROT")
