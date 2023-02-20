@@ -1,5 +1,6 @@
 #![no_std]
 
+mod pio;
 mod serial;
 
 use embedded_hal::blocking::delay::*;
