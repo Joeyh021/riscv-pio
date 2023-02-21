@@ -41,7 +41,7 @@ class PioAxiWrapper extends Module {
     io.axiLiteSlave.writeResponse.bits := 0.U
 
     //read signalling
-    val readAddrReady = !io.axiLiteSlave.readAddr.valid
+    val readAddrReady = RegNext(!io.axiLiteSlave.readAddr.valid)
     io.axiLiteSlave.readAddr.ready := readAddrReady
     val readReady = io.axiLiteSlave.readAddr.valid && io.axiLiteSlave.readAddr.ready
 
