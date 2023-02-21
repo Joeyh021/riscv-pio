@@ -34,7 +34,7 @@ module Pins(
             .O(inputData[i]),     // Buffer output
             .IO(pins[i]),   // Buffer inout port (connect directly to top-level port)
             .I(outputData[i]),     // Buffer input
-            .T(outputEnables[i] )      // 3-state enable input, high=input, low=output
+            .T(~outputEnables[i])      // 3-state enable input, high=input, low=output
         );
 
     end
