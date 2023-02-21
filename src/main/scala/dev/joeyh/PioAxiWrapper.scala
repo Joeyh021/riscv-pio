@@ -14,6 +14,7 @@ class PioAxiWrapper extends Module {
     val axiStreamMaster = Output(Bool())
     val axiStreamSlave  = Input(Bool())
     val pioAddressDEBUG = Output(UInt(8.W))
+    val pioClock        = Input(Clock())
     val pins            = Analog(32.W)
   })
   forceName(clock, "S_AXI_ACLK")
@@ -77,4 +78,5 @@ class PioAxiWrapper extends Module {
   pio.io.tx := DontCare
   io.axiStreamMaster := true.B
   pio.io.pins <> io.pins
+  pio.io.pioClock := io.pioClock
 }

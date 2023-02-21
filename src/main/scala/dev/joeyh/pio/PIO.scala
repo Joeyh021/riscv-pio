@@ -7,6 +7,7 @@ import dev.joeyh.pio.util.ReadWrite
 
 //the top level PIO interface
 class PIOIO extends Bundle {
+  val pioClock = Input(Clock())
   //address CSR and instructions in one 8-bit address space
   val address = Input(UInt(8.W))
   val rw      = new ReadWrite(UInt(16.W))
@@ -53,18 +54,18 @@ class PIO extends Module {
 
   //this module exists within the system clock domain
   //the PIO constructed below runs within it's own clock domain
-  val pioClock = ClockDivider(csr.io.clockDiv, clock, this.reset.asBool)
+  val pioClockSlowed = ClockDivider(csr.io.clockDiv, io.pioClock, this.reset.asBool)
 
   //does not matter which clock domain these are in because they have no implicit clock
   val txFifo = Module(new fifo.Fifo)
   txFifo.io.producerClock := this.clock
   txFifo.io.producerReset := this.reset
-  txFifo.io.consumerClock := pioClock
+  txFifo.io.consumerClock := pioClockSlowed
   txFifo.io.consumerReset := reset
   txFifo.io.producer <> io.tx
 
   val rxFifo = Module(new fifo.Fifo)
-  rxFifo.io.producerClock := pioClock
+  rxFifo.io.producerClock := pioClockSlowed
   rxFifo.io.producerReset := reset
   rxFifo.io.consumerClock := this.clock
   rxFifo.io.consumerReset := this.reset
@@ -72,7 +73,7 @@ class PIO extends Module {
 
   // the pio clock domain
   //use the enable register as the reset
-  withClockAndReset(pioClock, !csr.io.pioEnable) {
+  withClockAndReset(pioClockSlowed, !csr.io.pioEnable) {
     val isr      = Module(new shiftreg.ISR)
     val osr      = Module(new shiftreg.OSR)
     val scratchX = Module(new memory.ScratchReg)
