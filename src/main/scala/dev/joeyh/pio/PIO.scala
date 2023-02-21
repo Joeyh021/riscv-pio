@@ -53,19 +53,19 @@ class PIO extends Module {
 
   //this module exists within the system clock domain
   //the PIO constructed below runs within it's own clock domain
-  val (pioClock, pioReset) = ClockDivider(csr.io.clockDiv, clock, this.reset.asBool)
+  val pioClock = ClockDivider(csr.io.clockDiv, clock, this.reset.asBool)
 
   //does not matter which clock domain these are in because they have no implicit clock
   val txFifo = Module(new fifo.Fifo)
   txFifo.io.producerClock := this.clock
   txFifo.io.producerReset := this.reset
   txFifo.io.consumerClock := pioClock
-  txFifo.io.consumerReset := pioReset
+  txFifo.io.consumerReset := reset
   txFifo.io.producer <> io.tx
 
   val rxFifo = Module(new fifo.Fifo)
   rxFifo.io.producerClock := pioClock
-  rxFifo.io.producerReset := pioReset
+  rxFifo.io.producerReset := reset
   rxFifo.io.consumerClock := this.clock
   rxFifo.io.consumerReset := this.reset
   rxFifo.io.consumer <> io.rx

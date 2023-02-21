@@ -11,7 +11,6 @@ class PIOTest extends AnyFlatSpec with ChiselScalatestTester {
 
   it should "emit a square wave" in {
     test(new PIO).withAnnotations(Seq(VerilatorBackendAnnotation, WriteVcdAnnotation)) { uut =>
-      uut.reset.poke(true.B)
       //program
       val program = Seq(
         "b111_0_0001_110_00001".U, //set pin to 1, delay 1 cycle
@@ -43,10 +42,13 @@ class PIOTest extends AnyFlatSpec with ChiselScalatestTester {
       uut.io.address.poke(36)
       uut.io.rw.write.data.poke("b00000001_00000000".U)
       uut.clock.step()
+
+      //pull enable high
+      uut.io.address.poke(39)
+      uut.io.rw.write.data.poke(1.U)
+      uut.clock.step()
       uut.io.rw.write.enable.poke(false)
 
-      //pull reset low and go
-      uut.reset.poke(false.B)
       //should run?
       //check the waves hahaha
       uut.clock.step(20)
@@ -55,7 +57,6 @@ class PIOTest extends AnyFlatSpec with ChiselScalatestTester {
 
   it should "output from x and y with wrap" in {
     test(new PIO).withAnnotations(Seq(VerilatorBackendAnnotation, WriteVcdAnnotation)) { uut =>
-      uut.reset.poke(true.B)
       //program
       val program = Seq(
         "b111_0_0000_000_00001".U,  //write 1 to x register (set)
@@ -92,10 +93,13 @@ class PIOTest extends AnyFlatSpec with ChiselScalatestTester {
       uut.io.address.poke(36)
       uut.io.rw.write.data.poke("b00000010_00000001".U)
       uut.clock.step()
+
+      //pull enable high
+      uut.io.address.poke(39)
+      uut.io.rw.write.data.poke(1.U)
+      uut.clock.step()
       uut.io.rw.write.enable.poke(false)
 
-      //pull reset low and go
-      uut.reset.poke(false.B)
       //should run?
       //check the waves hahaha
       uut.clock.step(20)
@@ -104,7 +108,6 @@ class PIOTest extends AnyFlatSpec with ChiselScalatestTester {
 
   it should "do the ws2812b thing" in {
     test(new PIO).withAnnotations(Seq(VerilatorBackendAnnotation, WriteVcdAnnotation)) { uut =>
-      uut.reset.poke(true.B)
       //program
       val program = Seq(
         "b011_0_0010_000_00001".U, //shift 1 bit from OSR into X, side set 0, delay 2
@@ -144,8 +147,11 @@ class PIOTest extends AnyFlatSpec with ChiselScalatestTester {
       //pin config
       //leave input and output as zero, only using side set pin
 
-      //pull reset low and go
-      uut.reset.poke(false.B)
+      //pull enable high
+      uut.io.address.poke(39)
+      uut.io.rw.write.data.poke(1.U)
+      uut.clock.step()
+      uut.io.rw.write.enable.poke(false)
 
       //should run!
       uut.clock.step(100)
