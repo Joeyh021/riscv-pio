@@ -47,7 +47,7 @@ class PIO extends Module {
     0.U,
     Seq(
       0.U -> instructions.io.read,
-      1.U -> instructions.io.read
+      1.U -> csr.io.read
     )
   )
 
@@ -71,7 +71,8 @@ class PIO extends Module {
   rxFifo.io.consumer <> io.rx
 
   // the pio clock domain
-  withClockAndReset(pioClock, pioReset) {
+  //use the enable register as the reset
+  withClockAndReset(pioClock, !csr.io.pioEnable) {
     val isr      = Module(new shiftreg.ISR)
     val osr      = Module(new shiftreg.OSR)
     val scratchX = Module(new memory.ScratchReg)

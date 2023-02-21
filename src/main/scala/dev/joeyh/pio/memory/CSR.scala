@@ -22,6 +22,8 @@ class CSRIO extends ReadWrite(UInt(16.W)) {
   val pinCfg  = Output(new PinConfig)
   val isrCfg  = Output(new ShiftRegConfig)
   val osrCfg  = Output(new ShiftRegConfig)
+
+  val pioEnable = Output(Bool())
 }
 
 class CSR extends Module {
@@ -34,9 +36,10 @@ class CSR extends Module {
     val outputPinConfig = 4.U
     val isrCfg          = 5.U
     val osrCfg          = 6.U
+    val enable          = 7.U
   }
 
-  val mem = Mem(7, UInt(16.W))
+  val mem = Mem(8, UInt(16.W))
 
   io.read := mem.read(io.address)
 
@@ -65,5 +68,7 @@ class CSR extends Module {
   io.isrCfg.autoEnabled := mem(addressMap.isrCfg)(0)
   io.isrCfg.dir := mem(addressMap.isrCfg)(1)
   io.isrCfg.thresh := mem(addressMap.isrCfg)(6, 2)
+
+  io.pioEnable := mem(addressMap.enable) =/= 0.U
 
 }
