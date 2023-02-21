@@ -8,7 +8,7 @@ test:
 clean:
     rm -rf gen/*
 
-CROSS_COMPILE:= "/home/joey/vivado-risc-v/workspace/gcc/riscv/bin/riscv64-unknown-elf-"
+CROSS_COMPILE:= "/home/joey/project/vivado-risc-v/workspace/gcc/riscv/bin/riscv64-unknown-elf-"
 
 CC:=CROSS_COMPILE + "gcc"
 OBJCOPY:=CROSS_COMPILE + "objcopy"
@@ -18,9 +18,9 @@ CCFLAGS:="-march=rv64gc -mabi=lp64d -fno-builtin -ffreestanding -mcmodel=medany 
 LFLAGS:="-static -nostartfiles -T drivers/main.lds"
 
 binary: 
-	cargo build --manifest-path drivers/Cargo.toml --release
-	{{CC}} {{CCFLAGS}} {{LFLAGS}} -o $@ driver/startup.S drivers/target/riscv64gc-unknown-none-elf/release/librust.a
-	{{OBJDUMP}} -h -p $@
+	cargo build --release --manifest-path drivers/Cargo.toml 
+	{{CC}} {{CCFLAGS}} {{LFLAGS}} -o boot.elf drivers/startup.S drivers/target/riscv64gc-unknown-none-elf/release/libpio_drivers.a
+	{{OBJDUMP}} -h -p boot.elf
 
 flash:
 	cp boot.elf /media/joey/BOOT/boot.elf
