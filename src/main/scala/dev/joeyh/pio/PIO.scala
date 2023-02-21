@@ -2,6 +2,7 @@ package dev.joeyh.pio
 
 import chisel3._
 import chisel3.util._
+import chisel3.experimental.Analog
 import dev.joeyh.pio.util.ReadWrite
 
 //the top level PIO interface
@@ -12,6 +13,8 @@ class PIOIO extends Bundle {
 
   val rx = new fifo.ConsumerIO
   val tx = new fifo.ProducerIO
+
+  val pins = Analog(32.W)
 }
 
 //top level PIO module
@@ -126,6 +129,8 @@ class PIO extends Module {
     isr.io.shiftInData := pins.io.read
 
     pins.io.cfg := csr.io.pinCfg
+
+    pins.io.pins <> io.pins
 
   }
 

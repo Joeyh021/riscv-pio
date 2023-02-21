@@ -6,12 +6,14 @@ import chisel3._
 import chisel3.util._
 import dev.joeyh.pio.PIO
 import chisel3.util.experimental.forceName
+import chisel3.experimental.Analog
 
 class PioAxiWrapper extends Module {
   val io = IO(new Bundle {
     val axiLiteSlave    = new AXILiteSlave(8, 32)
     val axiStreamMaster = Output(Bool())
     val axiStreamSlave  = Input(Bool())
+    val pins            = Analog(32.W)
   })
   forceName(clock, "S_AXI_ACLK")
   forceName(reset, "S_AXI_ARESETN")
@@ -72,8 +74,8 @@ class PioAxiWrapper extends Module {
     pio.io.rw.write.data := io.axiLiteSlave.writeData.bits.data
   }
 
-  //
   pio.io.rx := DontCare
   pio.io.tx := DontCare
   io.axiStreamMaster := true.B
+  pio.io.pins <> io.pins
 }
