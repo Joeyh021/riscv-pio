@@ -13,6 +13,7 @@ class PioAxiWrapper extends Module {
     val axiLiteSlave    = new AXILiteSlave(8, 32)
     val axiStreamMaster = Output(Bool())
     val axiStreamSlave  = Input(Bool())
+    val pioAddressDEBUG = Output(UInt(8.W))
     val pins            = Analog(32.W)
   })
   forceName(clock, "S_AXI_ACLK")
@@ -57,13 +58,15 @@ class PioAxiWrapper extends Module {
     //ignore write strobing because i'm LAZY
 
     //pio address
-    pio.io.address := MuxCase(
-      0.U,
-      Seq(
-        io.axiLiteSlave.readData.fire  -> io.axiLiteSlave.readAddr.bits.addr,
-        io.axiLiteSlave.writeData.fire -> io.axiLiteSlave.writeAddr.bits.addr
-      )
-    )
+    //when writing then use the write address, default to read address
+    pio.io.address := Mux(
+      addrWriteReady,
+      io.axiLiteSlave.writeAddr.bits.addr,
+      io.axiLiteSlave.readAddr.bits.addr
+    ) >> 2 //div by 4 because axi addressing
+
+    io.pioAddressDEBUG := pio.io.address
+
     io.axiLiteSlave.readData.bits.data := pio.io.rw.read
 
     pio.io.rw.write.enable := addrWriteReady
