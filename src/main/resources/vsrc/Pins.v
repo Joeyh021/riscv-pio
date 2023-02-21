@@ -24,8 +24,19 @@ module Pins(
 
     //generate THIRTY ONE iobufs
     for(genvar i = 0; i < 31; i = i+1) begin
-        assign pins[i] = outputEnables[i] ? outputData[i] : 1'bz;
-        assign inputData[i] = pins[i];
+        //use Xilinx's IOBUF
+        IOBUF #( 
+            .DRIVE(12), // Specify the output drive strength
+            .IBUF_LOW_PWR("TRUE"),  // Low Power - "TRUE", High Performance = "FALSE"
+            .IOSTANDARD("LVCMOS33"), // IO standard from constraints
+            .SLEW("SLOW") // Specify the output slew rate
+        ) IOBUF_inst (
+            .O(inputData[i]),     // Buffer output
+            .IO(pins[i]),   // Buffer inout port (connect directly to top-level port)
+            .I(outputData[i]),     // Buffer input
+            .T(outputEnables[i] )      // 3-state enable input, high=input, low=output
+        );
+
     end
 
     //32nd output is always side set
