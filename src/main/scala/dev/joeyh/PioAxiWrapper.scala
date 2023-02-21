@@ -43,18 +43,14 @@ class PioAxiWrapper extends Module {
     //read signalling
     val readAddrReady = RegNext(!io.axiLiteSlave.readAddr.valid)
     io.axiLiteSlave.readAddr.ready := readAddrReady
-    val readReady = io.axiLiteSlave.readAddr.valid && io.axiLiteSlave.readAddr.ready
 
     val readValid = RegInit(false.B)
-    when(readReady) {
+    when(io.axiLiteSlave.readAddr.fire) {
       readValid := true.B
     }.elsewhen(io.axiLiteSlave.readData.ready) {
       readValid := false.B
     }
     io.axiLiteSlave.readData.valid := readValid
-
-    val readData = RegInit(0.U(32.W))
-    io.axiLiteSlave.readData.bits.data := readData
     io.axiLiteSlave.readData.bits.resp := 0.U
 
     //read/write register interface logic
@@ -64,8 +60,8 @@ class PioAxiWrapper extends Module {
     pio.io.address := MuxCase(
       0.U,
       Seq(
-        readReady      -> io.axiLiteSlave.readAddr.bits.addr,
-        addrWriteReady -> io.axiLiteSlave.writeAddr.bits.addr
+        io.axiLiteSlave.readData.fire  -> io.axiLiteSlave.readAddr.bits.addr,
+        io.axiLiteSlave.writeData.fire -> io.axiLiteSlave.writeAddr.bits.addr
       )
     )
     io.axiLiteSlave.readData.bits.data := pio.io.rw.read
