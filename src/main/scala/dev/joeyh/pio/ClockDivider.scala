@@ -6,7 +6,6 @@ import chisel3.util._
 class ClockDivider extends BlackBox with HasBlackBoxResource {
   val io = IO(new Bundle {
     val clock   = Input(Clock())
-    val reset   = Input(Bool())
     val divisor = Input(UInt(16.W))
     val outClk  = Output(Clock())
   })
@@ -14,11 +13,10 @@ class ClockDivider extends BlackBox with HasBlackBoxResource {
 }
 
 object ClockDivider {
-  def apply(divisor: UInt, clock: Clock, reset: Bool): Clock = {
+  def apply(divisor: UInt, clock: Clock): Clock = {
     val clkdiv = Module(new ClockDivider)
     clkdiv.io.clock := clock
     clkdiv.io.divisor := divisor
-    clkdiv.io.reset := reset
     clkdiv.io.outClk
   }
 }

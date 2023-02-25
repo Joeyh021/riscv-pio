@@ -53,7 +53,7 @@ class PIOTest extends AnyFlatSpec with ChiselScalatestTester {
 
       //clock divider to 2
       uut.io.address.poke(32)
-      uut.io.rw.write.data.poke(2)
+      uut.io.rw.write.data.poke(10)
       uut.clock.step()
 
       //branch pin can be left
