@@ -24,6 +24,7 @@ module Pins(
 
     //generate THIRTY ONE iobufs
     for(genvar i = 0; i < 31; i = i+1) begin
+        `ifdef VIVADO
         //use Xilinx's IOBUF
         IOBUF #( 
             .DRIVE(12), // Specify the output drive strength
@@ -36,6 +37,10 @@ module Pins(
             .I(outputData[i]),     // Buffer input
             .T(~outputEnables[i])      // 3-state enable input, high=input, low=output
         );
+        `else
+            assign pins[i] = outputEnables[i] ? outputData[i] : 1'bz;
+            assign inputData[i] = pins[i];
+        `endif
 
     end
 
