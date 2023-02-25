@@ -45,7 +45,7 @@ impl Pio {
             for (a, i) in program.iter().enumerate() {
                 self.0.instructions[a].write(*i);
             }
-            self.0.clock_div.write(u16::MAX as u32);
+            self.0.clock_div.write((u16::MAX - 5) as u32);
             self.0.output_pin_config.write(0b0000_0001_0000_0000);
         }
 

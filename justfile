@@ -18,10 +18,9 @@ CCFLAGS:="-march=rv64gc -mabi=lp64d -fno-builtin -ffreestanding -mcmodel=medany 
 LFLAGS:="-static -nostartfiles -T drivers/main.lds"
 
 binary: 
-	cargo build --release --manifest-path drivers/Cargo.toml 
-	{{CC}} {{CCFLAGS}} {{LFLAGS}} -o boot.elf drivers/startup.S drivers/target/riscv64gc-unknown-none-elf/release/libpio_drivers.a
-	{{OBJDUMP}} -h -p boot.elf
+	cargo build --release --target riscv64gc-unknown-none-elf --manifest-path drivers/Cargo.toml
+	{{CC}} {{CCFLAGS}} {{LFLAGS}} -o drivers/boot.elf drivers/startup.S drivers/target/riscv64gc-unknown-none-elf/release/libpio_drivers.a
+	{{OBJDUMP}} -h -p drivers/boot.elf
 
 flash:
-	cp boot.elf /media/joey/BOOT/boot.elf
-
+	cp drivers/boot.elf /media/joey/BOOT/boot.elf

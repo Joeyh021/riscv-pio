@@ -11,11 +11,15 @@ use serial::Serial;
 pub extern "C" fn main() -> ! {
     let mut serial = Serial::take().unwrap();
     let mut delay = McycleDelay::new(5_000_000);
+
     serial.println("Hello from Rust!");
     serial.println("Setting up blink...");
+
     let mut pio = pio::Pio::take().unwrap();
+
     pio.blink();
     serial.println("Running blink...");
+
     loop {
         delay.delay_ms(1000);
     }
