@@ -4,13 +4,36 @@ import chisel3._
 import chiseltest._
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.tags.Slow
+import dev.joeyh.pio.util._
+import chisel3.experimental.Analog
+
+class PioWrapper extends Module {
+  val io = IO(new Bundle {
+    //address CSR and instructions in one 8-bit address space
+    val address = Input(UInt(8.W))
+    val rw      = new ReadWrite(UInt(16.W))
+
+    val rx = new fifo.ConsumerIO
+    val tx = new fifo.ProducerIO
+
+    val pins = Analog(32.W)
+  })
+  val pio = Module(new PIO)
+  pio.io.address <> io.address
+  pio.io.rw <> io.rw
+  pio.io.rx <> io.rx
+  pio.io.tx <> io.tx
+  pio.io.pins <> io.pins
+  pio.io.pioClock := clock
+
+}
 
 @Slow
 class PIOTest extends AnyFlatSpec with ChiselScalatestTester {
   behavior of "PIO Block "
 
   it should "emit a square wave" in {
-    test(new PIO).withAnnotations(Seq(VerilatorBackendAnnotation, WriteVcdAnnotation)) { uut =>
+    test(new PioWrapper).withAnnotations(Seq(VerilatorBackendAnnotation, WriteVcdAnnotation)) { uut =>
       //program
       val program = Seq(
         "b111_0_0001_110_00001".U, //set pin to 1, delay 1 cycle
@@ -56,7 +79,7 @@ class PIOTest extends AnyFlatSpec with ChiselScalatestTester {
   }
 
   it should "output from x and y with wrap" in {
-    test(new PIO).withAnnotations(Seq(VerilatorBackendAnnotation, WriteVcdAnnotation)) { uut =>
+    test(new PioWrapper).withAnnotations(Seq(VerilatorBackendAnnotation, WriteVcdAnnotation)) { uut =>
       //program
       val program = Seq(
         "b111_0_0000_000_00001".U,  //write 1 to x register (set)
@@ -107,7 +130,7 @@ class PIOTest extends AnyFlatSpec with ChiselScalatestTester {
   }
 
   it should "do the ws2812b thing" in {
-    test(new PIO).withAnnotations(Seq(VerilatorBackendAnnotation, WriteVcdAnnotation)) { uut =>
+    test(new PioWrapper).withAnnotations(Seq(VerilatorBackendAnnotation, WriteVcdAnnotation)) { uut =>
       //program
       val program = Seq(
         "b011_0_0010_000_00001".U, //shift 1 bit from OSR into X, side set 0, delay 2

@@ -13,9 +13,9 @@ class PioAxiWrapper extends Module {
     val axiLiteSlave    = new AXILiteSlave(8, 32)
     val axiStreamMaster = Output(Bool())
     val axiStreamSlave  = Input(Bool())
-    val pioAddressDEBUG = Output(UInt(8.W))
     val pioClock        = Input(Clock())
     val pins            = Analog(32.W)
+
   })
   forceName(clock, "S_AXI_ACLK")
   forceName(reset, "S_AXI_ARESETN")
@@ -65,8 +65,6 @@ class PioAxiWrapper extends Module {
       io.axiLiteSlave.writeAddr.bits.addr,
       io.axiLiteSlave.readAddr.bits.addr
     ) >> 2 //div by 4 because axi addressing
-
-    io.pioAddressDEBUG := pio.io.address
 
     io.axiLiteSlave.readData.bits.data := pio.io.rw.read
 
