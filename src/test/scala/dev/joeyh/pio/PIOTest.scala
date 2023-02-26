@@ -133,10 +133,10 @@ class PIOTest extends AnyFlatSpec with ChiselScalatestTester {
     test(new PioWrapper).withAnnotations(Seq(VerilatorBackendAnnotation, WriteVcdAnnotation)) { uut =>
       //program
       val program = Seq(
-        "b011_0_0010_001_00001".U, //shift 1 bit from OSR into X, side set 0, delay 2
-        "b000_1_0001_001_00011".U, //branch on value of X (if x is zero then jump to 3, else fall through to 2), side 1 delay 1
-        "b000_1_0100_000_00000".U, //jump back to 0, side 1 delay 4
-        "b101_0_0100_101_00_101".U //nop, side 0, delay 4
+        "b011_0_0011_001_00001".U, //shift 1 bit from OSR into X, side set 0, delay 2
+        "b000_1_0011_001_00011".U, //branch on value of X (if x is zero then jump to 3, else fall through to 2), side 1 delay 2
+        "b000_1_0011_000_00000".U, //jump back to 0, side 1 delay 3
+        "b101_0_0011_101_00_101".U //nop, side 0, delay 2
       )
 
       //write program to pio
@@ -181,7 +181,7 @@ class PIOTest extends AnyFlatSpec with ChiselScalatestTester {
       //should stall for some cycles
       //write data into fifo
       uut.io.tx.doWrite.poke(true)
-      uut.io.tx.write.poke("b11111111_11111111_11111111".U)
+      uut.io.tx.write.poke("b01010101".U)
       uut.clock.step()
       uut.io.tx.full.expect(false.B)
       uut.io.tx.doWrite.poke(false)
