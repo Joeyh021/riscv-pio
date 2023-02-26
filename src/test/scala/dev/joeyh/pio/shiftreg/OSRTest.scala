@@ -57,11 +57,11 @@ class OSRTest extends AnyFlatSpec with ChiselScalatestTester {
       uut.io.cfg.dir.poke(true.B)
       uut.io.ctrl.count.poke(3.U)
 
-      uut.io.shiftOutData.expect("b101".U, "should have shifted out 3 bits")
+      uut.io.shiftOut.data.expect("b101".U, "should have shifted out 3 bits")
       uut.clock.step()
       uut.io.rw.read.expect("b10101010101010".U, "should have shifted register value right")
 
-      uut.io.shiftOutData.expect("b010".U, "should have shifted out 3 bits")
+      uut.io.shiftOut.data.expect("b010".U, "should have shifted out 3 bits")
       uut.clock.step()
       uut.io.rw.read.expect("b10101010101".U, "should have shifted register value right")
 
@@ -86,12 +86,12 @@ class OSRTest extends AnyFlatSpec with ChiselScalatestTester {
       uut.io.cfg.dir.poke(false.B)
       uut.io.ctrl.count.poke(5.U)
 
-      uut.io.shiftOutData.expect("b10101".U, "should have shifted out 5 bits")
+      uut.io.shiftOut.data.expect("b10101".U, "should have shifted out 5 bits")
       uut.clock.step()
       uut.io.rw.read.expect("b01000000_00000000_00000000_00000000".U, "should have shifted register value right")
 
       uut.io.ctrl.count.poke(2.U)
-      uut.io.shiftOutData.expect("b01".U, "should have shifted out 2 bits")
+      uut.io.shiftOut.data.expect("b01".U, "should have shifted out 2 bits")
       uut.clock.step()
       uut.io.rw.read.expect(0.U, "should have shifted register value right")
 
@@ -121,7 +121,7 @@ class OSRTest extends AnyFlatSpec with ChiselScalatestTester {
       uut.io.cfg.dir.poke(true.B)
       uut.io.ctrl.count.poke(4.U)
 
-      uut.io.shiftOutData.expect("b1011".U, "should have shifted out 3 bits")
+      uut.io.shiftOut.data.expect("b1011".U, "should have shifted out 3 bits")
       uut.io.fifo.doRead.expect(true.B, "should be reading from fifo")
       uut.clock.step()
       uut.io.rw.read.expect("b11111".U, "should have read from fifo")

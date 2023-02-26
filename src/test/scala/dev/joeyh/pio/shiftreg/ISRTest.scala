@@ -83,14 +83,14 @@ class ISRTest extends AnyFlatSpec with ChiselScalatestTester {
       uut.io.cfg.dir.poke(false.B)
       uut.io.ctrl.count.poke(2.U)
       uut.io.ctrl.doShift.poke(true.B)
-      uut.io.shiftInData.poke("b110110".U)
+      uut.io.shiftIn.poke("b110110".U)
 
       uut.clock.step()
 
       uut.io.rw.read.expect("b10".U, "should have put two lowest bits in LSB of register")
 
       uut.io.ctrl.count.poke(5.U)
-      uut.io.shiftInData.poke("b001110".U)
+      uut.io.shiftIn.poke("b001110".U)
 
       uut.clock.step()
 
@@ -100,7 +100,7 @@ class ISRTest extends AnyFlatSpec with ChiselScalatestTester {
       uut.io.cfg.dir.poke(true.B)
 
       uut.io.ctrl.count.poke(2.U)
-      uut.io.shiftInData.poke("b1101".U)
+      uut.io.shiftIn.poke("b1101".U)
 
       uut.clock.step()
 
@@ -116,7 +116,7 @@ class ISRTest extends AnyFlatSpec with ChiselScalatestTester {
       uut.io.cfg.thresh.poke(16.U)
       uut.io.ctrl.doPushPull.poke(false.B)
 
-      uut.io.shiftInData.poke("b111111111111111111111".U)
+      uut.io.shiftIn.poke("b111111111111111111111".U)
       uut.io.ctrl.count.poke(12.U)
       uut.io.cfg.dir.poke(false.B)
       uut.io.ctrl.doShift.poke(true.B)
@@ -127,7 +127,7 @@ class ISRTest extends AnyFlatSpec with ChiselScalatestTester {
 
       uut.io.fifo.doWrite.expect(false.B, "should not yet be writing to fifo")
       uut.io.ctrl.count.poke(4.U)
-      uut.io.shiftInData.poke(0.U)
+      uut.io.shiftIn.poke(0.U)
       uut.io.fifo.doWrite.expect(true.B, "should be writing to fifo, threshold of 16 reached")
       uut.io.fifo.write.expect("b0000111111111111".U, "should be writing pushed in data to fifo")
 

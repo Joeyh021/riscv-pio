@@ -3,7 +3,7 @@ package dev.joeyh.pio.shiftreg
 import chisel3._
 import chisel3.util._
 import dev.joeyh.pio.fifo._
-import dev.joeyh.pio.util.ReadWrite
+import dev.joeyh.pio.util._
 
 class ShiftRegConfig extends Bundle {
   //the threshold before new data is read/written to/from FIFO
@@ -36,11 +36,11 @@ class ShiftRegIO extends Bundle {
 }
 
 class ISRIO extends ShiftRegIO {
-  val shiftInData = Input(UInt(32.W))
-  val fifo        = Flipped(new ProducerIO)
+  val shiftIn = Input(UInt(32.W))
+  val fifo    = Flipped(new ProducerIO)
 }
 
 class OSRIO extends ShiftRegIO {
-  val shiftOutData = Output(UInt(32.W))
-  val fifo         = Flipped(new ConsumerIO)
+  val shiftOut = Flipped(Write(UInt(32.W)))
+  val fifo     = Flipped(new ConsumerIO)
 }

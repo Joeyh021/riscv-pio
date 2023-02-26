@@ -102,12 +102,6 @@ class PIO extends Module {
     //stall from shift regs
     execUnit.io.stall := isr.io.stall || osr.io.stall
 
-    //most reads/writes go through the exec unit
-    osr.io.rw <> execUnit.io.osr
-    isr.io.rw <> execUnit.io.isr
-    scratchX.io <> execUnit.io.x
-    scratchY.io <> execUnit.io.y
-
     //misc exec unit stuff
     execUnit.io.stall := isr.io.stall | osr.io.stall //either may cause a stall
 
@@ -116,19 +110,44 @@ class PIO extends Module {
 
     pins.io.sideSet := execUnit.io.sideSet //connect side set to pins
 
-    //writes for pins, from osr and exec unit
-    pins.io.write.enable := execUnit.io.osrCtl.doShift | execUnit.io.pins.write.enable
-    pins.io.write.data := MuxCase(
+    //direct reads/writes go through the exec unit
+    osr.io.rw <> execUnit.io.osr
+    isr.io.rw <> execUnit.io.isr
+
+    //osr can write to scratch registers
+    scratchX.io.write.enable := execUnit.io.x.write.enable || (osr.io.shiftOut.enable && execUnit.io.osrDest === 1.U)
+    scratchX.io.write.data := MuxCase(
       0.U,
       Seq(
-        execUnit.io.osrCtl.doShift    -> osr.io.shiftOutData,
-        execUnit.io.pins.write.enable -> execUnit.io.pins.write.data
+        (osr.io.shiftOut.enable && execUnit.io.osrDest === 1.U) -> osr.io.shiftOut.data,
+        execUnit.io.x.write.enable                              -> execUnit.io.x.write.data
       )
     )
 
-    //reads for pins, exec unit and ISR
+    scratchY.io.write.enable := execUnit.io.y.write.enable || (osr.io.shiftOut.enable && execUnit.io.osrDest === 2.U)
+    scratchY.io.write.data := MuxCase(
+      0.U,
+      Seq(
+        (osr.io.shiftOut.enable && execUnit.io.osrDest === 2.U) -> osr.io.shiftOut.data,
+        execUnit.io.y.write.enable                              -> execUnit.io.y.write.data
+      )
+    )
+
+    //writes for pins, from osr and exec unit
+    pins.io.write.enable := (osr.io.shiftOut.enable && execUnit.io.osrDest === 0.U) | execUnit.io.pins.write.enable
+    pins.io.write.data := MuxCase(
+      0.U,
+      Seq(
+        (osr.io.shiftOut.enable && execUnit.io.osrDest === 0.U) -> osr.io.shiftOut.data,
+        execUnit.io.pins.write.enable                           -> execUnit.io.pins.write.data
+      )
+    )
+
+    //reads for pins, scratch regs, exec unit and ISR
+    execUnit.io.x.read := scratchX.io.read
+    execUnit.io.y.read := scratchY.io.read
     execUnit.io.pins.read := pins.io.read
-    isr.io.shiftInData := pins.io.read
+    isr.io.shiftIn := pins.io.read
 
     pins.io.cfg := csr.io.pinCfg
 

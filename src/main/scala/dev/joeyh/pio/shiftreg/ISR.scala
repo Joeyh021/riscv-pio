@@ -23,7 +23,7 @@ class ISR extends Module {
   //when shift, shift the register
   when(io.ctrl.doShift) {
     //mask off N LSBs of input to shift in
-    val inData = (io.shiftInData & ((1.U << io.ctrl.count) - 1.U))
+    val inData = (io.shiftIn & ((1.U << io.ctrl.count) - 1.U))
     //when true, shift right
     //when false, shift left
     val shiftedReg = Mux(io.cfg.dir, reg >> io.ctrl.count, reg << io.ctrl.count)

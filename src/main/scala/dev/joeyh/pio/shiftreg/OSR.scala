@@ -56,7 +56,8 @@ class OSR extends Module {
     //always stall (re-exec the shift with a full register)
     io.stall := true.B
     //have to always drive all outputs
-    io.shiftOutData := 0.U
+    io.shiftOut.enable := false.B
+    io.shiftOut.data := 0.U
   }
   //otherwise, handle the rest of the instructions as usual
   .otherwise {
@@ -65,7 +66,8 @@ class OSR extends Module {
       //handle MOV instruction (write direct)
       reg := io.rw.write.data
       shiftCountReg := 0.U
-      io.shiftOutData := 0.U
+      io.shiftOut.enable := false.B
+      io.shiftOut.data := 0.U
       io.stall := false.B
       io.fifo.doRead := false.B
 
@@ -85,7 +87,8 @@ class OSR extends Module {
           reg := io.fifo.read
           shiftCountReg := 0.U
         }
-        io.shiftOutData := 0.U
+        io.shiftOut.enable := false.B
+        io.shiftOut.data := 0.U
       }
       .elsewhen(io.ctrl.doShift) {
         // CASE D
@@ -93,14 +96,17 @@ class OSR extends Module {
         when(io.cfg.dir) {
           //shift out right
           //mask off N LSBs and present at output
-          io.shiftOutData := reg & ((1.U << io.ctrl.count) - 1.U)
+          io.shiftOut.data := reg & ((1.U << io.ctrl.count) - 1.U)
+          io.shiftOut.enable := true.B
           reg := reg >> io.ctrl.count //move register right, fill with 0s
         }.otherwise {
           //shift out left
           //put N MSBs at output by shifting the bits down
-          io.shiftOutData := reg >> (32.U - io.ctrl.count)
+          io.shiftOut.data := reg >> (32.U - io.ctrl.count)
+          io.shiftOut.enable := true.B
           reg := reg << io.ctrl.count //move register left, fill with 0s
         }
+        shiftCountReg := shiftCountReg + io.ctrl.count
 
         //handle an autopull after a shift is executed
         //can't autopull after a write or explicit pull
@@ -121,7 +127,8 @@ class OSR extends Module {
       .otherwise({
         //CASE E
         //no instruction, just drive outputs
-        io.shiftOutData := 0.U
+        io.shiftOut.enable := false.B
+        io.shiftOut.data := 0.U
         io.stall := false.B
         io.fifo.doRead := false.B
       })
