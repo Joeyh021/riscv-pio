@@ -60,7 +60,8 @@ class Decode extends Module {
   //decrement if sleeping as we do not wish to sleep forever
   //if we are sleeping we don't want to read the delay field of the instruction
   //if we stall, then don't delay and immediately re-exec
-  delayCycles := Mux(sleeping, delayCycles - 1.U, Mux(io.stall, 0.U, io.instruction(11, 8)))
+  val delayCyclesNext = Mux(sleeping, delayCycles - 1.U, Mux(io.stall, 0.U, io.instruction(11, 8)))
+  delayCycles := delayCyclesNext
 
   //if we're sleeping, override instruction with `mov null null`
   //hacky? yes. efficient? no. functional? hopefully...
@@ -69,13 +70,15 @@ class Decode extends Module {
 
   //increment the program counter if we're not sleeping, and instruction didn't cause a stall
   //these cannot both be high at the same time
-  io.increment := !sleeping && !io.stall
+  io.increment := ((io.instruction(11, 8) === 0.U) || (delayCycles === 0.U)) && !io.stall
 
   //opcode is top 3 bits
   val opcode = instruction(15, 13)
 
   //side set is bit 12
-  io.sideSet := instruction(12)
+  val sideSet    = instruction(12)
+  val sideSetReg = RegEnable(sideSet, false.B, !sleeping)
+  io.sideSet := Mux(sleeping, sideSetReg, sideSet)
 
   //implement in/out instructions
   //assert control signals for registers
