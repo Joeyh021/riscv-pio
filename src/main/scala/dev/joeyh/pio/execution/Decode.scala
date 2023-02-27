@@ -70,7 +70,7 @@ class Decode extends Module {
 
   //increment the program counter if we're not sleeping, and instruction didn't cause a stall
   //these cannot both be high at the same time
-  io.increment := ((io.instruction(11, 8) === 0.U) || (delayCycles === 0.U)) && !io.stall
+  io.increment := !sleeping && !io.stall
 
   //opcode is top 3 bits
   val opcode = instruction(15, 13)
