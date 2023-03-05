@@ -7,14 +7,14 @@ import chisel3.util._
 import dev.joeyh.pio.PIO
 import chisel3.util.experimental.forceName
 import chisel3.experimental.Analog
+import dev.joeyh.pio.fifo.ProducerIO
 
 class PioAxiWrapper extends Module {
   val io = IO(new Bundle {
-    val axiLiteSlave    = new AXILiteSlave(8, 32)
-    val axiStreamMaster = Output(Bool())
-    val axiStreamSlave  = Input(Bool())
-    val pioClock        = Input(Clock())
-    val pins            = Analog(32.W)
+    val axiLiteSlave = new AXILiteSlave(8, 32)
+    val producer     = new ProducerIO
+    val pioClock     = Input(Clock())
+    val pins         = Analog(32.W)
 
   })
   forceName(clock, "S_AXI_ACLK")
@@ -73,8 +73,7 @@ class PioAxiWrapper extends Module {
   }
 
   pio.io.rx := DontCare
-  pio.io.tx := DontCare
-  io.axiStreamMaster := true.B
+  pio.io.tx <> io.producer
   pio.io.pins <> io.pins
   pio.io.pioClock := io.pioClock
 }
