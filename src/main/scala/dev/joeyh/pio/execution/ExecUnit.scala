@@ -112,6 +112,7 @@ class ExecUnit extends Module {
   io.y.write.enable := move.io.y.write.enable | branch.io.y.write.enable
 
   io.x.write.data := move.io.x.write.data | branch.io.x.write.data
+  io.y.write.data := move.io.y.write.data | branch.io.y.write.data
   //mux the data write between move/branch, if neither enabled than output 0
   io.x.write.data := MuxCase(
     0.U,
