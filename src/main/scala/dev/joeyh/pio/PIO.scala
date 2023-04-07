@@ -78,7 +78,7 @@ class PIO extends Module {
     val osr      = Module(new shiftreg.OSR)
     val scratchX = Module(new memory.ScratchReg)
     val scratchY = Module(new memory.ScratchReg)
-    val pins     = Module(new Pins)
+    val pins     = Module(new memory.Pins)
     val execUnit = Module(new execution.ExecUnit)
 
     //instruction reads

@@ -1,10 +1,11 @@
-package dev.joeyh.pio
+package dev.joeyh.pio.memory
 
 import chisel3._
 import chiseltest._
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.tagobjects.Slow
 
+import dev.joeyh.pio.memory.{PinIO, Pins}
 class PinsModule extends Module {
   val io = IO(new PinIO)
   val p  = Module(new Pins)

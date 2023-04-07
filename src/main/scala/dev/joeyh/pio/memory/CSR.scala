@@ -4,7 +4,7 @@ import chisel3._
 import chisel3.util._
 import dev.joeyh.pio.util._
 import dev.joeyh.pio.shiftreg.ShiftRegConfig
-import dev.joeyh.pio.PinConfig
+import dev.joeyh.pio.memory.PinConfig
 import chisel3.experimental.dataview.DataView
 import dev.joeyh.pio.execution.WrapConfig
 
