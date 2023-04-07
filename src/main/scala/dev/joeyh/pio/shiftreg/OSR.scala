@@ -4,6 +4,7 @@ import chisel3._
 import chisel3.util._
 import _root_.dev.joeyh.pio.fifo.ConsumerIO
 import _root_.dev.joeyh.pio.util.ReadWrite
+import _root_.dev.joeyh.pio.util.UIntExt._
 
 //OSR PULLS from TX FIFO
 class OSR extends Module {
@@ -17,20 +18,12 @@ class OSR extends Module {
   io.shiftCountReg := shiftCountReg
 
   //includes the count that will be shifted in on next clock cycle, if there is a shift
-  val saturatingShiftCountSum = Mux(io.ctrl.doShift, 32.U.min(shiftCountReg + io.ctrl.count), shiftCountReg)
 
   //if the thresh input is 0, then it's *actually 32*
-  val thresholdReachedAfterShift = Mux(
-    io.cfg.thresh === 0.U,
-    saturatingShiftCountSum === 32.U, //cannot be greater than 32
-    saturatingShiftCountSum >= io.cfg.thresh
-  )
+  val thresholdReachedAfterShift = (shiftCountReg /+\ io.ctrl.count) >= Mux(io.cfg.thresh === 0.U, 32.U, io.cfg.thresh)
+
   //same as above but we don't need to do any addition to add the shift count
-  val thresholdReachedBeforeShift = Mux(
-    io.cfg.thresh === 0.U,
-    shiftCountReg === 32.U,
-    shiftCountReg >= io.cfg.thresh
-  )
+  val thresholdReachedBeforeShift = shiftCountReg >= Mux(io.cfg.thresh === 0.U, 32.U, io.cfg.thresh)
 
   //what follows is a very long and complex bit of control flow
   //it took me a while to get ALL the outputs to drive on each of these cases
@@ -106,7 +99,7 @@ class OSR extends Module {
           io.shiftOut.enable := true.B
           reg := reg << io.ctrl.count //move register left, fill with 0s
         }
-        shiftCountReg := shiftCountReg + io.ctrl.count
+        shiftCountReg := shiftCountReg /+\ io.ctrl.count
 
         //handle an autopull after a shift is executed
         //can't autopull after a write or explicit pull
