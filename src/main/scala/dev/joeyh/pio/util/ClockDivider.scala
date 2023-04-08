@@ -1,4 +1,4 @@
-package dev.joeyh.pio
+package dev.joeyh.pio.util
 
 import chisel3._
 import chisel3.util._
@@ -20,3 +20,4 @@ object ClockDivider {
     clkdiv.io.outClk
   }
 }
+ 
