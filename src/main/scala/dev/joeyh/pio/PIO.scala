@@ -147,7 +147,16 @@ class PIO extends Module {
     execUnit.io.x.read := scratchX.io.read
     execUnit.io.y.read := scratchY.io.read
     execUnit.io.pins.read := pins.io.read
-    isr.io.shiftIn := pins.io.read
+    isr.io.shiftIn := MuxLookup(
+      execUnit.io.isrDest,
+      0.U,
+      Seq(
+        0.U -> pins.io.read,
+        1.U -> scratchY.io.read,
+        2.U -> scratchY.io.read,
+        3.U -> 0.U
+      )
+    )
 
     pins.io.cfg := csr.io.pinCfg
 
