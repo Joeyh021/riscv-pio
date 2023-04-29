@@ -52,19 +52,3 @@ impl Pio {
         self.enable();
     }
 }
-
-pub fn LEDs(pio: &mut Pio) {
-    let program: [u32; 3] = [
-        0b011_0_0010_001_00001, //shift 1 bit from OSR into X, side set 0, delay 2
-        0b000_1_0010_001_00000, //branch on value of X (if x is zero then jump to 0, else fall through to 2), side 1 delay 2
-        0b000_1_0100_000_00000, //jump back to 0, side 1 delay 4
-    ];
-    unsafe {
-        for (a, i) in program.iter().enumerate() {
-            pio.0.instructions[a].write(*i);
-        }
-        //clock divider 0 (original clock (10MHz))
-        pio.0.wrap_config.write(0b1_00000_00011_00000);
-        pio.0.osr_config.write(0b_11000_1_1);
-    }
-}

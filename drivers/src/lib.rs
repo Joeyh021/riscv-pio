@@ -12,14 +12,13 @@ pub extern "C" fn main() -> ! {
     let mut serial = Serial::take().unwrap();
     let mut delay = McycleDelay::new(5_000_000);
 
-    serial.println("Hello from Rust!");
-    serial.println("Setting up LEDs...");
+    serial.println("Hello from Rust running on a RISC-V Rocket Core!");
+    serial.println("Setting up PIO...");
 
     let mut pio = pio::Pio::take().unwrap();
-    pio::LEDs(&mut pio);
-    pio.enable();
-    serial.println("Running LEDs...");
 
+    serial.println("Running Pio::blink()...");
+    pio.blink();
     loop {
         delay.delay_ms(100000);
     }

@@ -4,7 +4,7 @@ import chisel3._
 import chiseltest._
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.tags.Slow
-import dev.joeyh.pio.util._
+import _root_.dev.joeyh.pio.util._
 import chisel3.experimental.Analog
 
 class PioWrapper extends Module {
@@ -53,7 +53,7 @@ class PIOTest extends AnyFlatSpec with ChiselScalatestTester {
 
       //clock divider to 2
       uut.io.address.poke(32)
-      uut.io.rw.write.data.poke(10)
+      uut.io.rw.write.data.poke(2)
       uut.clock.step()
 
       //branch pin can be left
@@ -129,13 +129,14 @@ class PIOTest extends AnyFlatSpec with ChiselScalatestTester {
     }
   }
 
-  it should "do the ws2812b thing" in {
+  it should "do the ws2812 thing" in {
     test(new PioWrapper).withAnnotations(Seq(VerilatorBackendAnnotation, WriteVcdAnnotation)) { uut =>
       //program
       val program = Seq(
-        "b011_0_0010_001_00001".U, //shift 1 bit from OSR into X, side set 0, delay 2
-        "b000_1_0010_001_00000".U, //branch on value of X (if x is zero then jump to 0, else fall through to 2), side 1 delay 2
-        "b000_1_0100_000_00000".U  //jump back to 0, side 1 delay 4
+        "b011_0_0010_001_00001".U, //out  x 1 side 0 [2]
+        "b000_1_0001_001_00011".U, //jmp !x 3 side 1 [1]
+        "b000_1_0100_000_00000".U, //jmp    0 side 1 [4]
+        "b101_0_0100_101_00_101".U //nop side 0 delay [4]
       )
 
       //write program to pio
@@ -192,6 +193,8 @@ class PIOTest extends AnyFlatSpec with ChiselScalatestTester {
 
       uut.io.tx.full.expect(false.B)
       uut.io.tx.doWrite.poke(false)
+      uut.io.tx.write.poke(0.U)
+
       uut.clock.step(1000)
     }
   }
