@@ -198,5 +198,83 @@ class PIOTest extends AnyFlatSpec with ChiselScalatestTester {
       uut.clock.step(1000)
     }
   }
+  it should "do duplex spi" in {
+    test(new PioWrapper).withAnnotations(Seq(VerilatorBackendAnnotation, WriteVcdAnnotation)) { uut =>
+      //program
+      val program = Seq(
+        "b011_0_0001_000_00001".U, //out  pins 1 side 0 [1]
+        "b010_1_0001_000_00001".U  //in pins 1 side 1 [1]
+      )
+
+      //write program to pio
+      uut.io.rw.write.enable.poke(true)
+      program.zipWithIndex.foreach {
+        case (a, i) =>
+          uut.io.address.poke(i)
+          uut.io.rw.write.data.poke(a)
+          uut.clock.step()
+      }
+      //set csrs
+
+      //clock divider to 2
+      uut.io.address.poke(32)
+      uut.io.rw.write.data.poke(2)
+      uut.clock.step()
+
+      //branch pin can be left
+
+      //wrap target needs to be set to 0, wrap trigger 3 (our loop)
+      uut.io.address.poke(34)
+      uut.io.rw.write.data.poke("b1_00000_00001_00000".U)
+      uut.clock.step()
+
+      //osr config
+      //set autopull to 32 bits, shift direction right
+      uut.io.address.poke(38.U)
+      uut.io.rw.write.data.poke("b_00000_1_1".U) //auto enabled with thresh 24, shift right
+      uut.clock.step()
+
+      //isr config
+      //set autopull to 32 bits, shift direction right
+      uut.io.address.poke(37.U)
+      uut.io.rw.write.data.poke("b_00000_1_1".U) //auto enabled with thresh 24, shift right
+      uut.clock.step()
+
+      //pin config
+      //one input one output pin
+      uut.io.address.poke(35)
+      uut.io.rw.write.data.poke("b00000001_00000001".U)
+      uut.clock.step()
+      uut.io.address.poke(36)
+      uut.io.rw.write.data.poke("b00000001_00000010".U)
+      uut.clock.step()
+
+      //pull enable high
+      uut.io.address.poke(39)
+      uut.io.rw.write.data.poke(1.U)
+      uut.clock.step()
+      uut.io.rw.write.enable.poke(false)
+
+      //should run!
+      uut.clock.step(3)
+      //should stall for some cycles
+      //write data into fifo
+      uut.io.tx.doWrite.poke(true)
+
+      uut.io.tx.write.poke("b10101010101010101010101010101010".U)
+      uut.clock.step()
+      uut.io.tx.write.poke("b10101010101010101010101010101010".U)
+      uut.clock.step()
+
+      uut.io.tx.write.poke("b10101010101010101010101010101010".U)
+      uut.clock.step()
+
+      uut.io.tx.full.expect(false.B)
+      uut.io.tx.doWrite.poke(false)
+      uut.io.tx.write.poke(0.U)
+
+      uut.clock.step(1000)
+    }
+  }
 
 }
